@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My classrooms · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header" id="site-header"></header>
+
+    <main class="page stack">
+      <div class="page-heading">
+        <h1>My classrooms</h1>
+        <span class="spacer"></span>
+        <button class="button button--ghost" type="button" id="join-open">Join with a code</button>
+        <button class="button" type="button" id="create-open" hidden>New classroom</button>
+      </div>
+
+      <p class="notice notice--error" id="page-error" hidden></p>
+
+      <!-- Join by code ------------------------------------------------------ -->
+      <section class="card stack" id="join-panel" hidden>
+        <h2 class="card__title">Join a classroom</h2>
+        <p class="meta">Enter the code your teacher shared.</p>
+        <form class="row" id="join-form">
+          <div class="field">
+            <label class="sr-only" for="join-code">Classroom code</label>
+            <input
+              id="join-code"
+              class="code-input"
+              type="text"
+              maxlength="12"
+              autocomplete="off"
+              placeholder="ABC123"
+              required
+            />
+          </div>
+          <button class="button" type="submit" id="join-submit">Join</button>
+          <button class="button button--ghost" type="button" id="join-cancel">Cancel</button>
+        </form>
+        <p class="notice notice--error" id="join-error" hidden></p>
+      </section>
+
+      <!-- Create (staff only) ----------------------------------------------- -->
+      <section class="card stack" id="create-panel" hidden>
+        <h2 class="card__title">New classroom</h2>
+        <form class="stack" id="create-form">
+          <div class="field">
+            <label for="create-name">Name</label>
+            <input id="create-name" type="text" maxlength="120" required />
+          </div>
+
+          <div class="field">
+            <label for="create-description">Description <span class="meta">(optional)</span></label>
+            <textarea id="create-description" rows="2" maxlength="500"></textarea>
+          </div>
+
+          <div class="split">
+            <div class="field">
+              <label for="create-term">Term <span class="meta">(optional)</span></label>
+              <input id="create-term" type="text" maxlength="40" placeholder="Fall 2026" />
+            </div>
+
+            <div class="field">
+              <label for="create-visibility">Visibility</label>
+              <select id="create-visibility">
+                <option value="private" selected>Private — join code only</option>
+                <option value="public">Public — anyone at your university can find it</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="notice notice--error" id="create-error" hidden></p>
+
+          <div class="row">
+            <button class="button" type="submit" id="create-submit">Create classroom</button>
+            <button class="button button--ghost" type="button" id="create-cancel">Cancel</button>
+          </div>
+        </form>
+      </section>
+
+      <div id="classrooms"></div>
+
+      <section class="stack" id="public-section" hidden>
+        <h2 class="card__title">Open classrooms at your university</h2>
+        <div id="public-classrooms"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/js/home.js"></script>
+  </body>
+</html>

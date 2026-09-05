@@ -1,0 +1,157 @@
+/* Sign in / sign up screens. Tokens come from app.css. */
+
+.auth {
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 44px 20px 72px;
+  display: grid;
+  gap: 22px;
+}
+
+.auth__card {
+  padding: 26px;
+}
+
+.auth__title {
+  font-size: 1.4rem;
+}
+
+.auth__foot {
+  text-align: center;
+  margin: 0;
+}
+
+/* One-time codes ---------------------------------------------------------- */
+
+.code-input {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 12px;
+}
+
+/* Progress ---------------------------------------------------------------- */
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  counter-reset: progress;
+}
+
+.progress-steps__item {
+  counter-increment: progress;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+}
+
+.progress-steps__item::before {
+  content: counter(progress);
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  font-size: 0.72rem;
+}
+
+.progress-steps__item + .progress-steps__item::after {
+  content: '';
+}
+
+.progress-steps__item[data-state='current'] {
+  color: var(--accent);
+}
+
+.progress-steps__item[data-state='current']::before {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.progress-steps__item[data-state='done'] {
+  color: var(--success);
+}
+
+.progress-steps__item[data-state='done']::before {
+  content: '✓';
+  border-color: var(--success);
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+/* Two-factor enrolment ---------------------------------------------------- */
+
+.qr-frame {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  justify-self: center;
+  line-height: 0;
+}
+
+.qr-frame img {
+  display: block;
+  width: 220px;
+  height: 220px;
+}
+
+.secret-details summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.secret-details .meta {
+  margin: 10px 0 6px;
+}
+
+.secret-key {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: 0;
+  word-break: break-all;
+}
+
+/* Recovery codes ---------------------------------------------------------- */
+
+.recovery-codes {
+  list-style: none;
+  margin: 0;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 460px) {
+  .recovery-codes {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recovery-codes li[data-used='true'] {
+  text-decoration: line-through;
+  color: var(--text-faint);
+}

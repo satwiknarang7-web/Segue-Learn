@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create account · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="/" aria-label="EduPlatform home">
+          <img class="brand__logo brand__logo--light" src="/img/segueit-logo.png" alt="SegueIT" />
+          <img class="brand__logo brand__logo--dark" src="/img/segueit-logo-dark.png" alt="" aria-hidden="true" />
+          <span class="brand__divider" aria-hidden="true"></span>
+          <span class="brand__product">Learn</span>
+        </a>
+        <span class="spacer"></span>
+        <a class="button button--ghost" href="/signin">Sign in</a>
+      </div>
+    </header>
+
+    <main class="auth">
+      <ol class="progress-steps" id="progress-steps">
+        <li data-step="account" class="progress-steps__item">Account</li>
+        <li data-step="enrol" class="progress-steps__item">Two-factor</li>
+        <li data-step="recovery" class="progress-steps__item">Recovery codes</li>
+      </ol>
+
+      <!-- Step 1: the account ------------------------------------------------ -->
+      <section class="card stack auth__card" id="account-step">
+        <div class="stack stack--tight">
+          <h1 class="auth__title">Create your account</h1>
+          <p class="meta">
+            Your university email decides which institution you join, so use that address rather
+            than a personal one.
+          </p>
+        </div>
+
+        <form class="stack" id="account-form">
+          <div class="field">
+            <label for="name">Your name</label>
+            <input id="name" type="text" maxlength="80" autocomplete="name" required />
+          </div>
+
+          <div class="field">
+            <label for="email">University email</label>
+            <input id="email" type="email" maxlength="160" autocomplete="username" required />
+            <span class="field__hint">For example: you@youruniversity.edu</span>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="new-password" minlength="10" required />
+            <span class="field__hint">At least 10 characters.</span>
+          </div>
+
+          <details class="secret-details">
+            <summary>I am teaching staff</summary>
+            <div class="field">
+              <label for="faculty-code">Staff code</label>
+              <input id="faculty-code" type="text" maxlength="60" autocomplete="off" />
+              <span class="field__hint">
+                Your department issues this. It lets you create classrooms. Leave it blank if you
+                are a student.
+              </span>
+            </div>
+          </details>
+
+          <p class="notice notice--error" id="account-error" hidden></p>
+
+          <button class="button button--large button--block" type="submit" id="account-submit">
+            Create account
+          </button>
+        </form>
+
+        <p class="meta auth__foot">Already have an account? <a href="/signin">Sign in</a>.</p>
+      </section>
+
+      <!-- Step 2: authenticator enrolment ------------------------------------ -->
+      <section class="card stack auth__card" id="enrol-step" hidden>
+        <div class="stack stack--tight">
+          <h1 class="auth__title">Set up two-factor</h1>
+          <p class="meta">
+            Scan this with an authenticator app, then type the six-digit code it shows.
+          </p>
+        </div>
+
+        <p class="notice notice--info">
+          <strong>No email is sent.</strong> Your codes are generated on your phone by the
+          authenticator app, and change every 30 seconds. There is nothing to wait for in your
+          inbox.
+        </p>
+
+        <details class="secret-details">
+          <summary>I don't have an authenticator app</summary>
+          <p class="meta">
+            Install a free one from your phone's app store — Google Authenticator, Microsoft
+            Authenticator and Authy all work, as do password managers like 1Password and Bitwarden.
+            Open it, choose "scan a QR code", and point it at the square below.
+          </p>
+        </details>
+
+        <div class="qr-frame">
+          <img id="totp-qr" alt="QR code for setting up two-factor authentication" />
+        </div>
+
+        <details class="secret-details">
+          <summary>Can't scan it?</summary>
+          <p class="meta">Enter this key into your app by hand:</p>
+          <p class="secret-key" id="totp-secret"></p>
+        </details>
+
+        <form class="stack" id="enrol-form">
+          <div class="field">
+            <label for="enrol-code">Six-digit code</label>
+            <input
+              class="code-input"
+              id="enrol-code"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+              required
+            />
+          </div>
+
+          <p class="notice notice--error" id="enrol-error" hidden></p>
+
+          <button class="button button--large button--block" type="submit" id="enrol-submit">
+            Turn on two-factor
+          </button>
+        </form>
+      </section>
+
+      <!-- Step 3: recovery codes --------------------------------------------- -->
+      <section class="card stack auth__card" id="recovery-step" hidden>
+        <div class="stack stack--tight">
+          <h1 class="auth__title">Save your recovery codes</h1>
+          <p class="meta">
+            Each code signs you in once if you lose your phone. Store them somewhere safe — this is
+            the only time they are shown.
+          </p>
+        </div>
+
+        <ul class="recovery-codes" id="recovery-codes"></ul>
+
+        <div class="row">
+          <button class="button button--ghost" type="button" id="copy-codes">Copy codes</button>
+          <button class="button button--ghost" type="button" id="download-codes">Download</button>
+        </div>
+
+        <label class="switch">
+          <input type="checkbox" id="codes-saved" />
+          <span>I have saved these codes somewhere safe</span>
+        </label>
+
+        <button class="button button--large button--block" type="button" id="finish" disabled>
+          Go to my classrooms
+        </button>
+      </section>
+    </main>
+
+    <script type="module" src="/js/signup.js"></script>
+  </body>
+</html>

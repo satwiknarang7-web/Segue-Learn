@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Results · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header" id="site-header"></header>
+
+    <main class="page stack">
+      <p class="notice notice--error" id="page-error" hidden></p>
+
+      <div class="page-heading" id="heading" hidden>
+        <div class="stack stack--tight">
+          <h1 id="quiz-title"></h1>
+          <p class="meta" id="quiz-meta"></p>
+        </div>
+        <span class="spacer"></span>
+        <a class="button button--ghost" id="back" href="#">Back to classroom</a>
+        <button class="button button--ghost" type="button" id="clear">Clear results</button>
+      </div>
+
+      <div class="stat-grid" id="summary" hidden></div>
+
+      <section class="card card--flush" id="results-card" hidden>
+        <div class="table-wrap">
+          <table id="results">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Student</th>
+                <th class="numeric">Score</th>
+                <th class="numeric">Correct</th>
+                <th class="numeric">Time</th>
+                <th>Finished</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div id="empty"></div>
+
+      <!-- One student's paper --------------------------------------------- -->
+      <section class="card stack" id="review-card" hidden>
+        <div class="row">
+          <h2 class="card__title" id="review-title"></h2>
+          <span class="spacer"></span>
+          <button class="button button--ghost button--small" type="button" id="review-close">
+            Close
+          </button>
+        </div>
+        <div id="review"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/js/quiz-results.js"></script>
+  </body>
+</html>

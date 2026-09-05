@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="/" aria-label="EduPlatform home">
+          <img class="brand__logo brand__logo--light" src="/img/segueit-logo.png" alt="SegueIT" />
+          <img class="brand__logo brand__logo--dark" src="/img/segueit-logo-dark.png" alt="" aria-hidden="true" />
+          <span class="brand__divider" aria-hidden="true"></span>
+          <span class="brand__product">Learn</span>
+        </a>
+        <span class="spacer"></span>
+        <a class="button button--ghost" href="/signup">Create account</a>
+      </div>
+    </header>
+
+    <main class="auth">
+      <!-- Step 1: password -------------------------------------------------- -->
+      <section class="card stack auth__card" id="credentials-step">
+        <div class="stack stack--tight">
+          <h1 class="auth__title">Sign in</h1>
+          <p class="meta">Use the email address your university gave you.</p>
+        </div>
+
+        <form class="stack" id="credentials-form">
+          <div class="field">
+            <label for="email">University email</label>
+            <input id="email" type="email" autocomplete="username" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="current-password" required />
+          </div>
+
+          <p class="notice notice--error" id="credentials-error" hidden></p>
+
+          <button class="button button--large button--block" type="submit" id="credentials-submit">
+            Continue
+          </button>
+        </form>
+
+        <p class="meta auth__foot"><a href="/reset">Forgotten your password?</a></p>
+        <p class="meta auth__foot">No account yet? <a href="/signup">Create one</a>.</p>
+      </section>
+
+      <!-- Step 2: authenticator code ---------------------------------------- -->
+      <section class="card stack auth__card" id="code-step" hidden>
+        <div class="stack stack--tight">
+          <h1 class="auth__title">Two-factor check</h1>
+          <p class="meta">
+            Open your authenticator app and enter the six-digit code it is showing. One of your
+            recovery codes works too.
+          </p>
+        </div>
+
+        <p class="notice notice--info">
+          <strong>No email or text message is sent.</strong> The code lives in your authenticator
+          app and changes every 30 seconds.
+        </p>
+
+        <form class="stack" id="code-form">
+          <div class="field">
+            <label for="totp-code">Code</label>
+            <input
+              class="code-input"
+              id="totp-code"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="13"
+              required
+            />
+          </div>
+
+          <p class="notice notice--error" id="code-error" hidden></p>
+
+          <button class="button button--large button--block" type="submit" id="code-submit">
+            Sign in
+          </button>
+        </form>
+
+        <p class="meta auth__foot"><a href="/signin">Start again</a></p>
+      </section>
+    </main>
+
+    <script type="module" src="/js/signin.js"></script>
+  </body>
+</html>

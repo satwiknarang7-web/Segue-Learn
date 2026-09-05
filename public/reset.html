@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reset password · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="brand" href="/" aria-label="EduPlatform home">
+          <img class="brand__logo brand__logo--light" src="/img/segueit-logo.png" alt="SegueIT" />
+          <img class="brand__logo brand__logo--dark" src="/img/segueit-logo-dark.png" alt="" aria-hidden="true" />
+          <span class="brand__divider" aria-hidden="true"></span>
+          <span class="brand__product">Learn</span>
+        </a>
+        <span class="spacer"></span>
+        <a class="button button--ghost" href="/signin">Sign in</a>
+      </div>
+    </header>
+
+    <main class="auth">
+      <section class="card stack auth__card" id="reset-step">
+        <div class="stack stack--tight">
+          <h1 class="auth__title">Reset your password</h1>
+          <p class="meta">
+            Prove it is you with your authenticator app, then choose a new password.
+          </p>
+        </div>
+
+        <p class="notice notice--info">
+          <strong>No reset email is sent.</strong> Enter the six-digit code from your authenticator
+          app, or one of the recovery codes you saved when you signed up.
+        </p>
+
+        <form class="stack" id="reset-form">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" autocomplete="username" required />
+          </div>
+
+          <div class="field">
+            <label for="code">Authenticator or recovery code</label>
+            <input
+              class="code-input"
+              id="code"
+              type="text"
+              autocomplete="one-time-code"
+              maxlength="13"
+              required
+            />
+            <span class="field__hint">
+              A recovery code can only be used once, and using one here spends it.
+            </span>
+          </div>
+
+          <div class="field">
+            <label for="new-password">New password</label>
+            <input
+              id="new-password"
+              type="password"
+              autocomplete="new-password"
+              minlength="10"
+              required
+            />
+            <span class="field__hint">At least 10 characters.</span>
+          </div>
+
+          <p class="notice notice--error" id="reset-error" hidden></p>
+
+          <button class="button button--large button--block" type="submit" id="reset-submit">
+            Set new password
+          </button>
+        </form>
+
+        <p class="meta auth__foot">
+          Lost your phone <em>and</em> your recovery codes? Nobody can reset it for you — ask
+          whoever runs this server to remove your row from the <code>users</code> table so you can
+          sign up again.
+        </p>
+      </section>
+
+      <section class="card stack auth__card" id="done-step" hidden>
+        <div class="stack stack--tight">
+          <h1 class="auth__title">Password changed</h1>
+          <p class="meta" id="done-detail"></p>
+        </div>
+
+        <p class="notice notice--info">
+          Every device that was signed in has been signed out, including this one.
+        </p>
+
+        <a class="button button--large button--block" href="/signin">Sign in</a>
+      </section>
+    </main>
+
+    <script type="module" src="/js/reset.js"></script>
+  </body>
+</html>

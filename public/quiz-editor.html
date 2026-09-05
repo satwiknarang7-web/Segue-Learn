@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit quiz · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header" id="site-header"></header>
+
+    <main class="page stack">
+      <p class="notice notice--error" id="page-error" hidden></p>
+
+      <div class="page-heading" id="heading" hidden>
+        <div class="stack stack--tight">
+          <h1 id="quiz-title-heading"></h1>
+          <p class="meta" id="quiz-meta"></p>
+        </div>
+        <span class="spacer"></span>
+        <span id="publish-area"></span>
+      </div>
+
+      <div class="split" id="editor" hidden>
+        <!-- Questions ----------------------------------------------------- -->
+        <section class="stack">
+          <h2 class="card__title">Questions</h2>
+          <div id="questions"></div>
+
+          <section class="card stack">
+            <h3 class="card__title" id="question-form-title">Add a question</h3>
+            <form class="stack" id="question-form">
+              <div class="field">
+                <label for="q-type">Type</label>
+                <select id="q-type">
+                  <option value="choice">Multiple choice</option>
+                  <option value="short">Short answer</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="q-text">Question</label>
+                <textarea id="q-text" rows="2" maxlength="500" required></textarea>
+              </div>
+
+              <div class="field">
+                <label for="q-points">Marks</label>
+                <input id="q-points" type="number" min="1" max="100" value="1" />
+              </div>
+
+              <div class="stack" id="choice-fields">
+                <div class="field">
+                  <label>Options <span class="meta">(pick the correct one)</span></label>
+                  <div class="stack stack--tight" id="options"></div>
+                  <button class="button button--ghost button--small" type="button" id="add-option">
+                    Add option
+                  </button>
+                </div>
+              </div>
+
+              <div class="stack" id="short-fields" hidden>
+                <div class="field">
+                  <label for="q-answers">Accepted answers</label>
+                  <textarea id="q-answers" rows="3" placeholder="2&#10;two"></textarea>
+                  <span class="field__hint">
+                    One per line. Case and spacing are ignored when marking.
+                  </span>
+                </div>
+              </div>
+
+              <p class="notice notice--error" id="question-error" hidden></p>
+
+              <div class="row">
+                <button class="button" type="submit" id="question-submit">Add question</button>
+                <button class="button button--ghost" type="button" id="question-cancel" hidden>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </section>
+        </section>
+
+        <!-- Settings ------------------------------------------------------ -->
+        <section class="stack">
+          <h2 class="card__title">Settings</h2>
+          <section class="card stack">
+            <form class="stack" id="settings-form">
+              <div class="field">
+                <label for="s-title">Title</label>
+                <input id="s-title" type="text" maxlength="120" required />
+              </div>
+
+              <div class="field">
+                <label for="s-description">Description</label>
+                <textarea id="s-description" rows="2" maxlength="500"></textarea>
+              </div>
+
+              <div class="field">
+                <label for="s-minutes">Time limit (minutes)</label>
+                <input id="s-minutes" type="number" min="1" max="240" required />
+              </div>
+
+              <div class="split">
+                <div class="field">
+                  <label for="s-available">Opens</label>
+                  <input id="s-available" type="datetime-local" />
+                </div>
+                <div class="field">
+                  <label for="s-due">Due</label>
+                  <input id="s-due" type="datetime-local" />
+                </div>
+              </div>
+
+              <label class="switch">
+                <input type="checkbox" id="s-retakes" />
+                <span>Allow more than one attempt</span>
+              </label>
+
+              <label class="switch">
+                <input type="checkbox" id="s-reveal" />
+                <span>Show students their answers afterwards</span>
+              </label>
+
+              <label class="switch">
+                <input type="checkbox" id="s-shuffle-questions" />
+                <span>Shuffle question order</span>
+              </label>
+
+              <label class="switch">
+                <input type="checkbox" id="s-shuffle-options" />
+                <span>Shuffle option order</span>
+              </label>
+
+              <label class="switch">
+                <input type="checkbox" id="s-end-on-leave" />
+                <span>End the attempt if a student leaves the page</span>
+              </label>
+
+              <p class="notice notice--error" id="settings-error" hidden></p>
+
+              <button class="button" type="submit" id="settings-submit">Save settings</button>
+            </form>
+          </section>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="/js/quiz-editor.js"></script>
+  </body>
+</html>

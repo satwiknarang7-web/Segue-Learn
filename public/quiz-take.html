@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quiz · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <main class="quiz-take">
+      <p class="notice notice--error" id="page-error" hidden></p>
+
+      <!-- Before starting ------------------------------------------------- -->
+      <section class="card stack" id="intro" hidden>
+        <h1 id="intro-title"></h1>
+        <p class="meta" id="intro-description"></p>
+
+        <div class="stat-grid" id="intro-stats"></div>
+
+        <p class="notice notice--warning" id="intro-warning" hidden></p>
+
+        <div class="row">
+          <button class="button button--large" type="button" id="start">Start the quiz</button>
+          <a class="button button--ghost" id="intro-back" href="#">Back to classroom</a>
+        </div>
+      </section>
+
+      <!-- Taking ---------------------------------------------------------- -->
+      <section id="taking" hidden>
+        <div class="timer-bar">
+          <span class="timer" id="timer" data-urgent="false">--:--</span>
+          <span class="meta" id="progress"></span>
+          <span class="spacer"></span>
+          <button class="button" type="button" id="submit">Submit</button>
+        </div>
+
+        <div id="questions"></div>
+
+        <div class="row">
+          <button class="button button--large button--block" type="button" id="submit-bottom">
+            Submit the quiz
+          </button>
+        </div>
+      </section>
+
+      <!-- Finished -------------------------------------------------------- -->
+      <section class="stack" id="finished" hidden>
+        <section class="card stack">
+          <h1 id="result-title">Submitted</h1>
+          <p class="meta" id="result-reason"></p>
+          <div class="stat-grid" id="result-stats"></div>
+          <div class="row">
+            <a class="button" id="result-back" href="#">Back to classroom</a>
+          </div>
+        </section>
+
+        <section class="card card--flush" id="review-card" hidden>
+          <div id="review"></div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="/js/quiz-take.js"></script>
+  </body>
+</html>

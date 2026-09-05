@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.local
+
+# Everything under data/ is local runtime state and none of it belongs in the
+# repository: the embedded Postgres cluster, locally stored uploads, and --
+# most importantly -- secrets.json, which holds the key session cookies are
+# signed with. Committing that would let anyone forge a session.
+data/
+
+*.log
+.DS_Store
