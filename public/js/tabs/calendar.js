@@ -1,4 +1,12 @@
 import { api, el, formatDateTime, showError, toast } from '../api.js';
+import {
+  bucketByDay,
+  dateFromKey,
+  dayKey,
+  gridRange,
+  renderMonthGrid,
+  timeText,
+} from '../lib/calendarGrid.js';
 
 /**
  * The Calendar tab.
@@ -8,56 +16,16 @@ import { api, el, formatDateTime, showError, toast } from '../api.js';
  * anybody copying them: the server unions them in, and they are read-only
  * because they are changed where they are set.
  *
- * Every date decision is made in local time. The browser is the only party
- * that knows the reader's zone, so it works out which month it is showing and
- * asks the server for exactly that window.
+ * The grid itself lives in lib/calendarGrid.js, shared with the cross-course
+ * calendar so the two cannot drift apart.
  */
 
-const KIND_LABEL = {
+export const KIND_LABEL = {
   class: 'Class',
   due: 'Deadline',
   exam: 'Exam',
   office_hours: 'Office hours',
   other: 'Event',
-};
-
-/** Monday-first, which is what most of the world's timetables use. */
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-/** A stable key for "which local day is this", used to bucket entries. */
-const dayKey = (date) =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-const startOfDay = (date) =>
-  new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-/** Monday of the week containing `date`. */
-function startOfWeek(date) {
-  const day = startOfDay(date);
-  // getDay() is Sunday-first; shift so Monday is 0.
-  const offset = (day.getDay() + 6) % 7;
-  day.setDate(day.getDate() - offset);
-  return day;
-}
-
-/** The six-week window a month grid actually shows. */
-function gridRange(year, month) {
-  const from = startOfWeek(new Date(year, month, 1));
-  const to = new Date(from);
-  to.setDate(to.getDate() + 42);
-  return { from, to };
-}
-
-const timeText = (entry) => {
-  if (entry.allDay) return 'All day';
-  const start = new Date(entry.startsAt);
-  const time = start.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-  if (!entry.endsAt || entry.endsAt === entry.startsAt) return time;
-  const end = new Date(entry.endsAt).toLocaleTimeString(undefined, {
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-  return `${time} – ${end}`;
 };
 
 export async function renderCalendarTab({ classroomId }) {
@@ -281,84 +249,35 @@ export async function renderCalendarTab({ classroomId }) {
     ]);
   }
 
-  function monthGrid(data, byDay) {
-    const { from } = gridRange(year, month);
-    const todayKey = dayKey(new Date());
-
-    const cells = [];
-    for (let index = 0; index < 42; index += 1) {
-      const date = new Date(from);
-      date.setDate(date.getDate() + index);
-      const key = dayKey(date);
-      const entries = byDay.get(key) ?? [];
-
-      cells.push(
-        el(
-          'div',
-          {
-            class: 'cal-day',
-            dataset: {
-              outside: String(date.getMonth() !== month),
-              today: String(key === todayKey),
-              selected: String(key === selectedDay),
-            },
+  const monthGrid = (data, byDay) =>
+    renderMonthGrid({
+      year,
+      month,
+      byDay,
+      selectedDay,
+      onSelectDay: (key) => {
+        selectedDay = key;
+        render(data);
+      },
+      chipFor: (entry, key) =>
+        entryChip(entry, {
+          onSelect: () => {
+            selectedDay = key;
+            render(data);
           },
-          [
-            el('button', {
-              class: 'cal-day__number',
-              type: 'button',
-              text: String(date.getDate()),
-              'aria-label': date.toLocaleDateString(undefined, { dateStyle: 'full' }),
-              onClick: () => {
-                selectedDay = key;
-                render(data);
-              },
-            }),
-            el(
-              'div',
-              { class: 'cal-day__entries' },
-              // Three fit before the cell has to say "more"; a taller cell on
-              // a phone would push the rest of the month off screen.
-              entries.slice(0, 3).map((entry) =>
-                entryChip(entry, {
-                  onSelect: () => {
-                    selectedDay = key;
-                    render(data);
-                  },
-                }),
-              ),
-            ),
-            entries.length > 3
-              ? el('span', { class: 'cal-day__more', text: `+${entries.length - 3} more` })
-              : null,
-          ],
-        ),
-      );
-    }
-
-    return el('div', { class: 'cal-grid' }, [
-      ...WEEKDAYS.map((day) => el('div', { class: 'cal-weekday', text: day })),
-      ...cells,
-    ]);
-  }
+        }),
+    });
 
   function render(data) {
     // Bucket by local day, because "which day is this on" is a local question.
-    const byDay = new Map();
-    for (const entry of data.entries) {
-      const key = dayKey(new Date(entry.startsAt));
-      if (!byDay.has(key)) byDay.set(key, []);
-      byDay.get(key).push(entry);
-    }
+    const byDay = bucketByDay(data.entries);
 
     const monthName = new Date(year, month, 1).toLocaleDateString(undefined, {
       month: 'long',
       year: 'numeric',
     });
 
-    const selectedDate = selectedDay
-      ? new Date(`${selectedDay}T00:00:00`)
-      : new Date();
+    const selectedDate = selectedDay ? dateFromKey(selectedDay) : new Date();
 
     body.replaceChildren(
       el('div', { class: 'row row--tight cal-toolbar' }, [

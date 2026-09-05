@@ -27,6 +27,9 @@ pageRoutes.get('/', async ({ req, res }) => {
 
 pageRoutes.get('/home', page('home.html'), signedIn);
 
+/** Everything due across every classroom, rather than one course at a time. */
+pageRoutes.get('/calendar', page('calendar.html'), signedIn);
+
 /**
  * One page serves every tab. The tab is a fragment the client reads, so moving
  * between Content and Gradebook does not reload the shell.

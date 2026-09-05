@@ -8,6 +8,22 @@ const signedIn = { signedIn: true };
 const base = '/api/classrooms/:classroomId/calendar';
 
 /**
+ * Everything due anywhere, across every classroom this person is in.
+ *
+ * Read-only: a deadline belongs to a course and is changed in that course, so
+ * there are no write routes hanging off this one.
+ */
+calendarRoutes.get(
+  '/api/calendar',
+  ({ user, query }) =>
+    calendarService.forUser(user, {
+      from: query.get('from') ?? undefined,
+      to: query.get('to') ?? undefined,
+    }),
+  signedIn,
+);
+
+/**
  * The window comes from the query string because only the browser knows the
  * reader's time zone, and "which month is this" is a local-time question.
  */

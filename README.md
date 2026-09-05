@@ -94,6 +94,19 @@ displays as markup rather than becoming it — structurally, not by escaping.
 
 ## Calendar
 
+Two of them, sharing one month grid (`public/js/lib/calendarGrid.js`) so they
+cannot drift apart:
+
+- **Per classroom**, in its Calendar tab. Chips are coloured by kind, because
+  in one course the useful distinction is class-versus-deadline.
+- **Across every course**, at `/calendar`. Chips are coloured by course,
+  because across six the useful distinction is which course a thing belongs
+  to — the kind is still there, in the badge. Read-only: a deadline belongs to
+  a course and is changed there, so every entry links back to it.
+
+The cross-course view is scoped by membership *and* by university, leaves out
+archived classrooms, and carries derived deadlines through like any other.
+
 A month grid, plus what is coming up next.
 
 **Deadlines are derived, never copied.** The `classroom_calendar` view unions

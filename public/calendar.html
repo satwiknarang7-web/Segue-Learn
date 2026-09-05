@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calendar · EduPlatform</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/platform.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23042b56'/><path d='M5 8h18l-3.2 4.4H5z' fill='%23878787'/><path d='M23.6 6.6h4.6L12.9 27h-4.6z' fill='%23ffffff'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="site-header" id="site-header"></header>
+
+    <main class="page stack">
+      <div class="page-heading">
+        <div class="stack stack--tight">
+          <h1>Calendar</h1>
+          <p class="meta">Every deadline and class across the courses you are in.</p>
+        </div>
+      </div>
+
+      <p class="notice notice--error" id="page-error" hidden></p>
+
+      <div id="calendar"></div>
+    </main>
+
+    <script type="module" src="/js/calendar.js"></script>
+  </body>
+</html>

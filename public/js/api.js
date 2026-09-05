@@ -103,6 +103,13 @@ export const api = {
 
   /* ---- Calendar ---- */
 
+  /** Everything across every classroom this person is in. Read-only. */
+  myCalendar: (from, to) =>
+    request(
+      'GET',
+      `/api/calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    ),
+
   calendar: (classroomId, from, to) =>
     request(
       'GET',
@@ -435,16 +442,24 @@ function menu(button, { fill } = {}) {
 const ROLE_WORD = { teacher: 'Teacher', ta: 'TA', student: 'Student' };
 
 function navLinks(current) {
-  const onHome = window.location.pathname === '/home';
+  const path = window.location.pathname;
+
+  const switcherButton = el('button', {
+    class: 'nav__link nav__link--menu',
+    type: 'button',
+    // The current classroom is the most useful label the button can carry:
+    // it says where you are as well as offering somewhere else to go.
+    text: current ?? 'Switch course',
+  });
+  // On a phone the label is hidden -- the banner underneath already names the
+  // course in large type -- so the button carries it for screen readers.
+  switcherButton.setAttribute(
+    'aria-label',
+    current ? `Current course: ${current}. Switch course` : 'Switch course',
+  );
 
   const switcher = menu(
-    el('button', {
-      class: 'nav__link nav__link--menu',
-      type: 'button',
-      // The current classroom is the most useful label the button can carry:
-      // it says where you are as well as offering somewhere else to go.
-      text: current ?? 'Switch course',
-    }),
+    switcherButton,
     {
       async fill() {
         const classrooms = await api.listClassrooms();
@@ -483,10 +498,18 @@ function navLinks(current) {
 
   return el('nav', { class: 'nav', 'aria-label': 'Main' }, [
     el('a', {
-      class: 'nav__link',
+      // The one link the brand already duplicates, so it is the first to go
+      // when the bar runs out of room.
+      class: 'nav__link nav__link--home',
       href: '/home',
       text: 'My classrooms',
-      'aria-current': onHome ? 'page' : null,
+      'aria-current': path === '/home' ? 'page' : null,
+    }),
+    el('a', {
+      class: 'nav__link',
+      href: '/calendar',
+      text: 'Calendar',
+      'aria-current': path === '/calendar' ? 'page' : null,
     }),
     switcher,
   ]);

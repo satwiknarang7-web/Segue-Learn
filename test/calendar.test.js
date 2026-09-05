@@ -243,6 +243,124 @@ describe('derived deadlines', () => {
   });
 });
 
+describe('the cross-course calendar', () => {
+  const myCalendar = (client, window = WINDOW) =>
+    client.get(
+      `/api/calendar?from=${encodeURIComponent(window.from)}&to=${encodeURIComponent(window.to)}`,
+    );
+
+  it('gathers entries from every classroom the person is in', async () => {
+    const { teacher, student, classroomId, joinCode } = await seedClassroom();
+    void joinCode;
+
+    const second = await teacher.post('/api/classrooms', { name: 'Linear Algebra' });
+    await student.post('/api/classrooms/join', { code: second.body.joinCode });
+
+    await addEvent(teacher, classroomId, { title: 'Maths seminar', startsAt: at(2) });
+    await addEvent(teacher, second.body.id, { title: 'Algebra lecture', startsAt: at(4) });
+
+    const seen = await myCalendar(student);
+    assert.equal(seen.status, 200, seen.text);
+    assert.deepEqual(
+      seen.body.entries.map((e) => e.title),
+      ['Maths seminar', 'Algebra lecture'],
+    );
+
+    // Each entry names the course it came from, so the page can say so.
+    assert.deepEqual(
+      seen.body.entries.map((e) => e.classroomName),
+      ['Discrete Maths', 'Linear Algebra'],
+    );
+  });
+
+  it('leaves out classrooms the person is not in', async () => {
+    const { teacher, student, classroomId } = await seedClassroom();
+
+    const notMine = await teacher.post('/api/classrooms', { name: 'Someone else\'s course' });
+    await addEvent(teacher, classroomId, { title: 'Mine', startsAt: at(2) });
+    await addEvent(teacher, notMine.body.id, { title: 'Not mine', startsAt: at(3) });
+
+    const seen = await myCalendar(student);
+    assert.deepEqual(
+      seen.body.entries.map((e) => e.title),
+      ['Mine'],
+    );
+  });
+
+  it('never crosses a university boundary', async () => {
+    const { teacher, classroomId } = await seedClassroom();
+    await addEvent(teacher, classroomId, { title: 'Here', startsAt: at(2) });
+
+    await universityRepository.insert({
+      name: 'Other University',
+      slug: 'other',
+      emailDomain: 'other.edu',
+      facultySignupCode: 'STAFF',
+    });
+    const elsewhere = await signedInClient(harness, {
+      email: 'someone@other.edu',
+      facultyCode: 'STAFF',
+    });
+
+    const seen = await myCalendar(elsewhere);
+    assert.equal(seen.body.entries.length, 0);
+  });
+
+  it('leaves out archived classrooms', async () => {
+    const { teacher, student, classroomId } = await seedClassroom();
+    await addEvent(teacher, classroomId, { title: 'Before archiving', startsAt: at(2) });
+
+    assert.equal((await myCalendar(student)).body.entries.length, 1);
+
+    await teacher.post(`/api/classrooms/${classroomId}/archive`, { archived: true });
+
+    // A finished course crowding this term's calendar is noise.
+    assert.equal((await myCalendar(student)).body.entries.length, 0);
+  });
+
+  it('carries derived deadlines through, and marks them read-only', async () => {
+    const { teacher, student, classroomId } = await seedClassroom();
+    await teacher.post(`/api/classrooms/${classroomId}/gradebook/columns`, {
+      title: 'Essay 1',
+      pointsPossible: 40,
+      dueAt: at(9),
+    });
+
+    const seen = await myCalendar(student);
+    const essay = seen.body.entries.find((e) => e.title === 'Essay 1');
+
+    assert.ok(essay, 'the gradebook deadline should appear');
+    assert.equal(essay.derivedFrom, 'assessment');
+    // Nothing on this calendar is editable, whatever role you hold elsewhere.
+    assert.equal(essay.editable, false);
+  });
+
+  it('is read-only for staff too', async () => {
+    const { teacher, classroomId } = await seedClassroom();
+    await addEvent(teacher, classroomId, { title: 'Seminar', startsAt: at(2) });
+
+    const seen = await myCalendar(teacher);
+    assert.equal(seen.body.entries[0].editable, false);
+    assert.equal(seen.body.canEdit, undefined);
+  });
+
+  it('reports what is next even when looking at a quiet month', async () => {
+    const { teacher, student, classroomId } = await seedClassroom();
+    await addEvent(teacher, classroomId, { title: 'Next week', startsAt: at(7) });
+
+    const seen = await myCalendar(student, { from: at(-60), to: at(-30) });
+    assert.equal(seen.body.entries.length, 0);
+    assert.equal(seen.body.upcoming[0].title, 'Next week');
+    assert.equal(seen.body.upcoming[0].classroomName, 'Discrete Maths');
+  });
+
+  it('applies the same range limits as one classroom\'s calendar', async () => {
+    const { student } = await seedClassroom();
+    assert.equal((await myCalendar(student, { from: at(10), to: at(1) })).status, 400);
+    assert.equal((await myCalendar(student, { from: at(0), to: at(500) })).status, 400);
+  });
+});
+
 describe('the window', () => {
   it('leaves out anything outside the range asked for', async () => {
     const { teacher, classroomId } = await seedClassroom();

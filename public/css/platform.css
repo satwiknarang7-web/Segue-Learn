@@ -152,6 +152,10 @@ select:focus-visible,
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  /* Fixed labels keep their full width; only the switcher gives ground, since
+     it is the one carrying a name of unpredictable length. Without this the
+     flexbox squeezed "Calendar" down to "C". */
+  flex: 0 0 auto;
   padding: 0.45rem 0.7rem;
   border: 0;
   border-radius: var(--radius-sm);
@@ -178,9 +182,23 @@ select:focus-visible,
   background: var(--bg-subtle);
 }
 
-/* The switcher says where you are, so it earns the course's colour. */
+/**
+ * The switcher carries a course name, so it is the item that gives ground.
+ *
+ * It sits inside a .menu wrapper, and that wrapper is the flex item -- so the
+ * shrink has to happen there. The floor matters: with min-width:0 the wrapper
+ * collapsed to 7px while the button kept its own max-width and spilled across
+ * the avatar. The wrapper sets the width; the button fills it and ellipsises.
+ */
+.nav .menu {
+  flex: 0 1 auto;
+  min-width: 5.5rem;
+}
+
 .nav__link--menu {
   color: var(--text);
+  width: 100%;
+  max-width: 100%;
 }
 
 .nav__link--menu::after {
@@ -356,18 +374,32 @@ select:focus-visible,
 }
 
 /**
- * Below this, two nav labels only fit by truncating both into nonsense
- * ("My classroor", "Switch cours"). The link goes rather than the switcher:
- * the brand already leads home, and nothing else tells you which course you
- * are looking at. The switcher then takes the room the link gave up.
+ * Below this the labels only fit by truncating into nonsense ("My classroor",
+ * "Switch cours"). "My classrooms" is the one to drop, because the brand
+ * already leads home -- but Calendar stays, or it would be unreachable on a
+ * phone, and the switcher stays because nothing else says which course you
+ * are looking at.
  */
 @media (max-width: 620px) {
-  .nav__link:not(.nav__link--menu) {
+  .nav__link--home {
     display: none;
   }
 
+  /**
+   * The switcher drops its label and becomes a caret. A course name and an
+   * account button cannot both have room here -- they were overlapping -- and
+   * the banner directly below already names the course in large type. The
+   * button keeps the name in its aria-label.
+   */
+  .nav .menu {
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+
   .nav__link--menu {
-    max-width: 24ch;
+    width: auto;
+    font-size: 0;
+    padding: 0.45rem 0.55rem;
   }
 }
 
@@ -973,6 +1005,23 @@ select:focus-visible,
   font-size: 0.68rem;
   color: var(--text-faint);
   padding-left: 0.35rem;
+}
+
+/**
+ * On the cross-course calendar a chip is coloured by its course rather than
+ * its kind. In one classroom the useful distinction is class-versus-deadline;
+ * across six it is which course a thing belongs to.
+ */
+.cal-chip--course {
+  background: var(--course-soft);
+  color: var(--course-ink);
+  border-left-color: var(--course);
+}
+
+/* Entries there are links back to the course that owns them. */
+.cal-entry {
+  text-decoration: none;
+  color: inherit;
 }
 
 .cal-dot {

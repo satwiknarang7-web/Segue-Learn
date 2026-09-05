@@ -62,6 +62,29 @@ function parseEvent(payload, { partial = false } = {}) {
 /** Entries the calendar shows but does not own. */
 const isDerived = (entry) => entry.sourceType !== 'event';
 
+/**
+ * The window a caller asked for, checked.
+ *
+ * The client sends it because only the browser knows the reader's time zone,
+ * and "which month is this" is a local-time question. The cap is so one call
+ * cannot ask the database to scan a decade.
+ */
+function parseWindow(from, to) {
+  const start = from ? parseWhen(from, 'from') : new Date().toISOString();
+  const end = to
+    ? parseWhen(to, 'to')
+    : new Date(Date.parse(start) + 31 * 24 * 60 * 60 * 1000).toISOString();
+
+  if (Date.parse(end) <= Date.parse(start)) {
+    throw badRequest('"to" must be after "from".');
+  }
+  if (Date.parse(end) - Date.parse(start) > MAX_RANGE_DAYS * 24 * 60 * 60 * 1000) {
+    throw badRequest(`Ask for at most ${MAX_RANGE_DAYS} days at a time.`);
+  }
+
+  return { start, end };
+}
+
 function present(entry, { staff }) {
   return {
     ...entry,
@@ -76,28 +99,17 @@ export const calendarService = {
   KINDS,
 
   /**
-   * A window of the calendar, plus what is coming up next.
+   * A window of one classroom's calendar, plus what is coming up next.
    *
    * `from` and `to` are whatever the page asks for -- normally the month it is
-   * showing, widened to whole weeks so the grid's leading and trailing days are
-   * filled in. The client sends the range because only it knows the reader's
-   * time zone, and a month boundary is a local-time question.
+   * showing, widened to whole weeks so the grid's leading and trailing days
+   * are filled in.
    */
   async range(user, classroomId, { from, to } = {}) {
     const { role } = await classroomService.requireAccess(user, classroomId);
     const staff = role === 'teacher' || role === 'ta' || user.platformRole === 'admin';
 
-    const start = from ? parseWhen(from, 'from') : new Date().toISOString();
-    const end = to
-      ? parseWhen(to, 'to')
-      : new Date(Date.parse(start) + 31 * 24 * 60 * 60 * 1000).toISOString();
-
-    if (Date.parse(end) <= Date.parse(start)) {
-      throw badRequest('"to" must be after "from".');
-    }
-    if (Date.parse(end) - Date.parse(start) > MAX_RANGE_DAYS * 24 * 60 * 60 * 1000) {
-      throw badRequest(`Ask for at most ${MAX_RANGE_DAYS} days at a time.`);
-    }
+    const { start, end } = parseWindow(from, to);
 
     const [entries, upcoming] = await Promise.all([
       calendarRepository.listBetween(classroomId, start, end),
@@ -111,6 +123,41 @@ export const calendarService = {
       to: end,
       entries: entries.map((entry) => present(entry, { staff })),
       upcoming: upcoming.map((entry) => present(entry, { staff })),
+    };
+  },
+
+  /**
+   * Everything due anywhere, across every classroom this person is in.
+   *
+   * Read-only by design. A deadline here belongs to a course, and it is
+   * changed in that course -- so this view never offers to edit anything,
+   * whatever role the person holds somewhere else.
+   */
+  async forUser(user, { from, to } = {}) {
+    const { start, end } = parseWindow(from, to);
+
+    const [entries, upcoming] = await Promise.all([
+      calendarRepository.listForUserBetween(user.universityId, user.id, start, end),
+      calendarRepository.listUpcomingForUser(
+        user.universityId,
+        user.id,
+        new Date().toISOString(),
+        MAX_UPCOMING,
+      ),
+    ]);
+
+    const present = (entry) => ({
+      ...entry,
+      editable: false,
+      derivedFrom: isDerived(entry) ? entry.sourceType : null,
+    });
+
+    return {
+      from: start,
+      to: end,
+      kinds: KINDS,
+      entries: entries.map(present),
+      upcoming: upcoming.map(present),
     };
   },
 

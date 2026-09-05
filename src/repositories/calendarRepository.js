@@ -77,6 +77,63 @@ export const calendarRepository = {
     return rows.map(entryFromRow);
   },
 
+  /**
+   * Everything across every classroom this person is in.
+   *
+   * Archived classrooms are left out: their deadlines have been and gone, and
+   * a finished course crowding this term's calendar is noise.
+   *
+   * Scoped by university as well as by membership. Membership alone would be
+   * enough, but the tenant boundary is the one thing this product cannot get
+   * wrong, so it is stated rather than implied.
+   */
+  async listForUserBetween(universityId, userId, from, to) {
+    const { rows } = await query(
+      `select cal.id, cal.classroom_id, cal.title, cal.starts_at, cal.ends_at,
+              cal.all_day, cal.kind, cal.source_type, cal.source_id, cal.description,
+              room.name as classroom_name
+         from classroom_calendar cal
+         join classrooms room on room.id = cal.classroom_id
+         join classroom_members member
+           on member.classroom_id = cal.classroom_id and member.user_id = $2
+        where room.university_id = $1
+          and room.archived_at is null
+          and cal.starts_at >= $3
+          and cal.starts_at < $4
+        order by cal.starts_at`,
+      [universityId, userId, from, to],
+    );
+    return rows.map((row) => ({
+      ...entryFromRow(row),
+      classroomId: row.classroom_id,
+      classroomName: row.classroom_name,
+    }));
+  },
+
+  /** The next few things due anywhere, for the panel beside the month. */
+  async listUpcomingForUser(universityId, userId, from, limit) {
+    const { rows } = await query(
+      `select cal.id, cal.classroom_id, cal.title, cal.starts_at, cal.ends_at,
+              cal.all_day, cal.kind, cal.source_type, cal.source_id, cal.description,
+              room.name as classroom_name
+         from classroom_calendar cal
+         join classrooms room on room.id = cal.classroom_id
+         join classroom_members member
+           on member.classroom_id = cal.classroom_id and member.user_id = $2
+        where room.university_id = $1
+          and room.archived_at is null
+          and cal.starts_at >= $3
+        order by cal.starts_at
+        limit $4`,
+      [universityId, userId, from, limit],
+    );
+    return rows.map((row) => ({
+      ...entryFromRow(row),
+      classroomId: row.classroom_id,
+      classroomName: row.classroom_name,
+    }));
+  },
+
   async findEvent(classroomId, id) {
     return eventFromRow(
       await queryOne(
