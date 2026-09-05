@@ -1,4 +1,4 @@
-import { api, el, formatDateTime, renderParagraphs, showError, toast } from '../api.js';
+import { api, el, emptyState, formatDateTime, renderParagraphs, showError, toast } from '../api.js';
 
 /**
  * The Discussions tab.
@@ -231,18 +231,19 @@ export async function renderDiscussionsTab({ classroomId }) {
     const rows =
       threads.length === 0
         ? [
-            el('div', {
-              class: 'empty-state',
-              text: 'No discussions yet. Ask the first question.',
-            }),
+            emptyState(
+              'discussion',
+              'No discussions yet',
+              'Ask the first question. Anyone in this classroom can start a thread.',
+            ),
           ]
         : [
             el(
               'section',
               { class: 'card card--flush' },
               threads.map((thread) =>
-                el('div', { class: 'quiz-row' }, [
-                  el('div', { class: 'stack stack--tight quiz-row__main' }, [
+                el('div', { class: 'list-row' }, [
+                  el('div', { class: 'stack stack--tight list-row__main' }, [
                     el('div', { class: 'row row--tight' }, [
                       thread.pinned
                         ? el('span', { class: 'badge badge--accent', text: 'Pinned' })

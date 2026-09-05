@@ -1,4 +1,14 @@
-import { api, el, hideNotice, renderHeader, requireSession, showError, toast } from './api.js';
+import {
+  api,
+  applyCourseTheme,
+  el,
+  emptyState,
+  hideNotice,
+  renderHeader,
+  requireSession,
+  showError,
+  toast,
+} from './api.js';
 
 const nodes = {
   classrooms: document.querySelector('#classrooms'),
@@ -25,7 +35,7 @@ const ROLE_LABEL = { teacher: 'Teacher', ta: 'TA', student: 'Student' };
 function classroomCard(classroom) {
   const staff = classroom.role === 'teacher' || classroom.role === 'ta';
 
-  return el(
+  const card = el(
     'a',
     {
       class: 'classroom-card',
@@ -33,33 +43,39 @@ function classroomCard(classroom) {
       dataset: { archived: String(classroom.archived) },
     },
     [
-      el('div', { class: 'classroom-card__top' }, [
-        el('h3', { class: 'classroom-card__name', text: classroom.name }),
-        classroom.role
-          ? el('span', {
-              class: staff ? 'badge badge--accent' : 'badge',
-              text: ROLE_LABEL[classroom.role] ?? classroom.role,
-            })
+      el('div', { class: 'classroom-card__body' }, [
+        el('div', { class: 'classroom-card__top' }, [
+          el('h3', { class: 'classroom-card__name', text: classroom.name }),
+          classroom.role
+            ? el('span', {
+                class: staff ? 'badge badge--accent' : 'badge',
+                text: ROLE_LABEL[classroom.role] ?? classroom.role,
+              })
+            : null,
+        ]),
+        classroom.description
+          ? el('p', { class: 'classroom-card__description', text: classroom.description })
           : null,
-      ]),
-      classroom.description
-        ? el('p', { class: 'classroom-card__description', text: classroom.description })
-        : null,
-      el('div', { class: 'classroom-card__foot' }, [
-        classroom.term ? el('span', { text: classroom.term }) : null,
-        classroom.archived ? el('span', { class: 'badge', text: 'Archived' }) : null,
-        // Only staff are given the code, so only staff can show it.
-        staff && classroom.joinCode
-          ? el('span', { class: 'code-chip', text: classroom.joinCode })
-          : null,
+        el('div', { class: 'classroom-card__foot' }, [
+          classroom.term ? el('span', { text: classroom.term }) : null,
+          classroom.archived ? el('span', { class: 'badge', text: 'Archived' }) : null,
+          // Only staff are given the code, so only staff can show it.
+          staff && classroom.joinCode
+            ? el('span', { class: 'code-chip', text: classroom.joinCode })
+            : null,
+        ]),
       ]),
     ],
   );
+
+  // The card's band takes the course's own colour, which is what makes a wall
+  // of them scannable before any title has been read.
+  return applyCourseTheme(card, classroom.id);
 }
 
-function renderList(target, classrooms, emptyMessage) {
+function renderList(target, classrooms, empty) {
   if (classrooms.length === 0) {
-    target.replaceChildren(el('div', { class: 'empty-state', text: emptyMessage }));
+    target.replaceChildren(empty);
     return;
   }
   target.replaceChildren(
@@ -74,8 +90,16 @@ async function refresh() {
       nodes.classrooms,
       mine,
       user.role === 'student'
-        ? 'You have not joined a classroom yet. Ask your teacher for a code.'
-        : 'No classrooms yet. Create one, or join with a code.',
+        ? emptyState(
+            'people',
+            'No classrooms yet',
+            'Your teacher will give you a join code. Enter it above and the course appears here.',
+          )
+        : emptyState(
+            'content',
+            'No classrooms yet',
+            'Create your first classroom, and share its code with your students.',
+          ),
     );
 
     // Public classrooms are only worth showing when there are some the person
@@ -84,7 +108,7 @@ async function refresh() {
     const open = (await api.listPublicClassrooms()).filter((room) => !joined.has(room.id));
 
     nodes.publicSection.hidden = open.length === 0;
-    if (open.length > 0) renderList(nodes.publicList, open, '');
+    if (open.length > 0) renderList(nodes.publicList, open, null);
   } catch (error) {
     showError(nodes.pageError, error.message);
   }

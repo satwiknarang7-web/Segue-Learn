@@ -1,4 +1,4 @@
-import { api, el, formatDate, showError, toast } from '../api.js';
+import { api, el, emptyState, formatDate, showError, toast } from '../api.js';
 
 /**
  * The Gradebook tab.
@@ -109,17 +109,19 @@ function columnHeader(item, classroomId, refresh) {
 
 function staffGrid(classroomId, data, refresh, error) {
   if (data.items.length === 0) {
-    return el('div', {
-      class: 'empty-state',
-      text: 'No columns yet. Add an assessment, or pull in a quiz.',
-    });
+    return emptyState(
+      'grades',
+      'No columns yet',
+      'Add an assessment, or pull in a quiz so its scores count towards a grade.',
+    );
   }
 
   if (data.rows.length === 0) {
-    return el('div', {
-      class: 'empty-state',
-      text: 'No students have joined this classroom yet.',
-    });
+    return emptyState(
+      'people',
+      'No students yet',
+      'Share the classroom code and the gradebook fills in as people join.',
+    );
   }
 
   const head = el('tr', {}, [
@@ -161,21 +163,22 @@ function staffGrid(classroomId, data, refresh, error) {
 
 function studentView(data) {
   if (data.items.length === 0) {
-    return el('div', { class: 'empty-state', text: 'Nothing has been graded in this classroom yet.' });
+    return emptyState(
+      'grades',
+      'Nothing graded yet',
+      'Your marks appear here as your teacher records them.',
+    );
   }
 
   const row = data.rows[0];
   if (!row) {
-    return el('div', {
-      class: 'empty-state',
-      text: 'You do not have any marks in this classroom.',
-    });
+    return emptyState('grades', 'No marks yet', 'Nothing has been graded for you here.');
   }
 
   const lines = data.items.map((item, index) => {
     const cell = row.cells[index];
-    return el('div', { class: 'quiz-row' }, [
-      el('div', { class: 'stack stack--tight quiz-row__main' }, [
+    return el('div', { class: 'list-row' }, [
+      el('div', { class: 'stack stack--tight list-row__main' }, [
         el('strong', { text: item.title }),
         el('span', {
           class: 'meta',
@@ -288,8 +291,8 @@ export async function renderGradebookTab({ classroomId, isStaff }) {
                 'div',
                 { class: 'stack stack--tight' },
                 quizzes.map((quiz) =>
-                  el('div', { class: 'quiz-row' }, [
-                    el('div', { class: 'stack stack--tight quiz-row__main' }, [
+                  el('div', { class: 'list-row' }, [
+                    el('div', { class: 'stack stack--tight list-row__main' }, [
                       el('strong', { text: quiz.title }),
                       el('span', { class: 'meta', text: `${quiz.totalPoints} marks` }),
                     ]),

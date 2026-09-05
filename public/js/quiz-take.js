@@ -1,5 +1,6 @@
 import {
   api,
+  applyCourseTheme,
   el,
   formatDuration,
   formatTimeLimit,
@@ -289,6 +290,9 @@ document.querySelector('#start').addEventListener('click', begin);
 async function boot() {
   const user = await requireSession();
   if (!user) return;
+
+  // The quiz pages belong to a classroom, so they wear its colour too.
+  applyCourseTheme(document.documentElement, classroomId);
 
   document.querySelector('#intro-back').href = backHref;
 

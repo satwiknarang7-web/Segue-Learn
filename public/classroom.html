@@ -17,13 +17,15 @@
     <main class="page stack">
       <p class="notice notice--error" id="page-error" hidden></p>
 
-      <div class="page-heading" id="classroom-heading" hidden>
-        <div class="stack stack--tight">
-          <h1 id="classroom-name"></h1>
-          <p class="meta" id="classroom-meta"></p>
+      <div class="classroom-banner" id="classroom-heading" hidden>
+        <div class="classroom-banner__row">
+          <div>
+            <h1 class="classroom-banner__name" id="classroom-name"></h1>
+            <p class="classroom-banner__meta" id="classroom-meta"></p>
+          </div>
+          <span class="spacer"></span>
+          <span id="heading-extra"></span>
         </div>
-        <span class="spacer"></span>
-        <span id="heading-extra"></span>
       </div>
 
       <div class="tabs" role="tablist" id="tabs" hidden></div>

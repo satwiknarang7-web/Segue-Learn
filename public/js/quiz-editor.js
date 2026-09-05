@@ -1,6 +1,8 @@
 import {
   api,
+  applyCourseTheme,
   el,
+  emptyState,
   formatTimeLimit,
   hideNotice,
   renderHeader,
@@ -271,7 +273,11 @@ function render() {
 
   if (quiz.questions.length === 0) {
     nodes.questions.replaceChildren(
-      el('div', { class: 'empty-state', text: 'No questions yet. Add the first one below.' }),
+      emptyState(
+        'quiz',
+        'No questions yet',
+        'Add the first one below. A quiz cannot be published until it has at least one.',
+      ),
     );
   } else {
     nodes.questions.replaceChildren(...quiz.questions.map(questionCard));
@@ -335,6 +341,9 @@ document.querySelector('#settings-form').addEventListener('submit', async (event
 async function boot() {
   const user = await requireSession();
   if (!user) return;
+
+  // The quiz pages belong to a classroom, so they wear its colour too.
+  applyCourseTheme(document.documentElement, classroomId);
 
   renderHeader({ user });
 

@@ -1,4 +1,14 @@
-import { api, el, formatDate, renderHeader, requireSession, showError, toast } from './api.js';
+import {
+  api,
+  applyCourseTheme,
+  el,
+  emptyState,
+  formatDate,
+  renderHeader,
+  requireSession,
+  showError,
+  toast,
+} from './api.js';
 import { renderAnnouncementsTab } from './tabs/announcements.js';
 import { renderCalendarTab } from './tabs/calendar.js';
 import { renderDiscussionsTab } from './tabs/discussions.js';
@@ -39,11 +49,8 @@ const initials = (name) =>
     .join('');
 
 /** A placeholder that says what will live here, rather than pretending to work. */
-const comingSoon = (title, description) => () =>
-  el('div', { class: 'coming-soon' }, [
-    el('h2', { class: 'coming-soon__title', text: title }),
-    el('p', { class: 'meta', text: description }),
-  ]);
+const comingSoon = (icon, title, description) => () =>
+  emptyState(icon, title, description);
 
 /* ---- People -------------------------------------------------------------- */
 
@@ -200,8 +207,9 @@ const TABS = [
     id: 'content',
     label: 'Content',
     render: comingSoon(
-      'Content',
-      'Lecture slides, readings and links, arranged in folders. Files will live in Supabase Storage.',
+      'content',
+      'Course content',
+      'Lecture slides, readings and links, arranged in folders. This is the one tab that stores files rather than rows, so it is waiting on file storage.',
     ),
   },
   {
@@ -232,7 +240,11 @@ const TABS = [
   {
     id: 'messages',
     label: 'Messages',
-    render: comingSoon('Messages', 'Direct conversations with people at your university.'),
+    render: comingSoon(
+      'message',
+      'Messages',
+      'Direct conversations with people at your university, carrying on after the term ends.',
+    ),
   },
   { id: 'people', label: 'People', render: renderPeople },
   { id: 'settings', label: 'Settings', render: renderSettings, staffOnly: true },
@@ -299,6 +311,10 @@ async function boot() {
   }
 
   isStaff = classroom.role === 'teacher' || classroom.role === 'ta' || user.role === 'admin';
+
+  // Set on the root, so the banner, the tab underline, the calendar chips and
+  // every empty state on the page are all in this course's colour.
+  applyCourseTheme(document.documentElement, classroomId);
 
   renderHeader({ user, current: classroom.name });
 

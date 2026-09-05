@@ -1,4 +1,4 @@
-import { api, el, formatDateTime, formatTimeLimit, showError, toast } from '../api.js';
+import { api, el, emptyState, formatDateTime, formatTimeLimit, showError, toast } from '../api.js';
 
 /**
  * The Quiz tab.
@@ -40,8 +40,8 @@ function quizMeta(quiz) {
 /* ---- Staff ---------------------------------------------------------------- */
 
 function staffRow(classroomId, quiz, refresh) {
-  return el('div', { class: 'quiz-row' }, [
-    el('div', { class: 'stack stack--tight quiz-row__main' }, [
+  return el('div', { class: 'list-row' }, [
+    el('div', { class: 'stack stack--tight list-row__main' }, [
       el('div', { class: 'row row--tight' }, [
         el('strong', { text: quiz.title }),
         stateBadge(quiz),
@@ -106,8 +106,8 @@ function studentRow(classroomId, quiz) {
                 : 'Unavailable',
       });
 
-  return el('div', { class: 'quiz-row' }, [
-    el('div', { class: 'stack stack--tight quiz-row__main' }, [
+  return el('div', { class: 'list-row' }, [
+    el('div', { class: 'stack stack--tight list-row__main' }, [
       el('div', { class: 'row row--tight' }, [
         el('strong', { text: quiz.title }),
         quiz.state !== 'open' ? stateBadge(quiz) : null,
@@ -138,12 +138,13 @@ export async function renderQuizTab({ classroomId, isStaff }) {
 
       if (quizzes.length === 0) {
         list.replaceChildren(
-          el('div', {
-            class: 'empty-state',
-            text: isStaff
-              ? 'No quizzes yet. Create one to get started.'
-              : 'No quizzes have been set for this classroom yet.',
-          }),
+          isStaff
+            ? emptyState(
+                'quiz',
+                'No quizzes yet',
+                'Create one, add questions, and publish it when it is ready.',
+              )
+            : emptyState('quiz', 'No quizzes yet', 'Quizzes your teacher sets appear here.'),
         );
         return;
       }

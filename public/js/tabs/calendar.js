@@ -214,9 +214,9 @@ export async function renderCalendarTab({ classroomId }) {
 
     return el('section', { class: 'card card--flush' }, [
       ...entries.map((entry) =>
-        el('div', { class: 'quiz-row' }, [
+        el('div', { class: 'list-row' }, [
           el('span', { class: 'cal-dot', dataset: { kind: entry.kind } }),
-          el('div', { class: 'stack stack--tight quiz-row__main' }, [
+          el('div', { class: 'stack stack--tight list-row__main' }, [
             el('div', { class: 'row row--tight' }, [
               el('strong', { text: entry.title }),
               entry.derivedFrom
@@ -269,7 +269,7 @@ export async function renderCalendarTab({ classroomId }) {
         ]),
       ),
       data.canEdit
-        ? el('div', { class: 'quiz-row' }, [
+        ? el('div', { class: 'list-row' }, [
             el('button', {
               class: 'button button--ghost button--small',
               type: 'button',
@@ -416,9 +416,9 @@ export async function renderCalendarTab({ classroomId }) {
               'section',
               { class: 'card card--flush' },
               data.upcoming.map((entry) =>
-                el('div', { class: 'quiz-row' }, [
+                el('div', { class: 'list-row' }, [
                   el('span', { class: 'cal-dot', dataset: { kind: entry.kind } }),
-                  el('div', { class: 'stack stack--tight quiz-row__main' }, [
+                  el('div', { class: 'stack stack--tight list-row__main' }, [
                     el('strong', { text: entry.title }),
                     el('span', { class: 'meta', text: formatDateTime(entry.startsAt) }),
                   ]),

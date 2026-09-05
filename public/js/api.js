@@ -220,6 +220,77 @@ export function clear(node) {
   return node;
 }
 
+/* ---- Course identity ------------------------------------------------------
+ *
+ * Every classroom gets a colour of its own, derived from its id so it is the
+ * same on every device and every visit without anything being stored.
+ *
+ * The hues are a curated list rather than `hash % 360`, because a third of the
+ * colour wheel is mud at the lightness this palette uses, and a course that
+ * came out olive would look like a bug rather than a choice.
+ */
+
+const COURSE_HUES = [217, 262, 291, 330, 356, 18, 40, 160, 187, 200];
+
+export function courseHue(id) {
+  let hash = 0;
+  for (const character of String(id)) {
+    hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+  }
+  return COURSE_HUES[hash % COURSE_HUES.length];
+}
+
+/** Paints a subtree in a classroom's colour by setting the hue it derives from. */
+export function applyCourseTheme(node, classroomId) {
+  node.style.setProperty('--course-h', String(courseHue(classroomId)));
+  return node;
+}
+
+/**
+ * A simple inline glyph for an empty state.
+ *
+ * Drawn rather than imported: a handful of one-path shapes is not worth a font
+ * or an icon dependency, and inline SVG inherits currentColor for free.
+ */
+const GLYPHS = {
+  content: 'M4 5h7l2 2h7v12H4z',
+  calendar: 'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4',
+  announcement: 'M4 10v4h4l6 4V6l-6 4z',
+  discussion: 'M4 5h16v10H9l-5 4z',
+  quiz: 'M6 3h12v18H6zM9 8h6M9 12h6M9 16h3',
+  grades: 'M4 20V10M10 20V4M16 20v-8M22 20H2',
+  message: 'M4 5h16v11H12l-4 4v-4H4z',
+  people: 'M9 11a3.2 3.2 0 1 0 0-6.4A3.2 3.2 0 0 0 9 11zM3 20a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M17 20a6 6 0 0 0-2-4.3',
+};
+
+export function glyph(name, size = 28) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('width', String(size));
+  svg.setAttribute('height', String(size));
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '1.6');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', GLYPHS[name] ?? GLYPHS.content);
+  svg.append(path);
+  return svg;
+}
+
+/** An empty state with a glyph, a line, and optionally something to do. */
+export function emptyState(name, title, detail = '', action = null) {
+  return el('div', { class: 'empty-state' }, [
+    el('span', { class: 'empty-state__glyph' }, [glyph(name, 30)]),
+    el('p', { class: 'empty-state__title', text: title }),
+    detail ? el('p', { class: 'empty-state__detail', text: detail }) : null,
+    action,
+  ]);
+}
+
 /**
  * Plain text as paragraph elements: blank lines separate paragraphs, single
  * newlines stay as line breaks.

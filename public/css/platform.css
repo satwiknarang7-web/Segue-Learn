@@ -3,6 +3,142 @@
    the platform adds over SegueQuiz lives in this file: the signed-in header,
    the classroom grid, and the tabbed classroom shell. */
 
+/* ---- Shared surfaces ----------------------------------------------------- *
+   Overrides of app.css primitives, so the whole product moves together
+   rather than each tab drifting into its own look. */
+
+/* A hairline of the brand across the top, so the app has an edge rather than
+   beginning wherever the content happens to start. */
+.site-header {
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.site-header::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, var(--course) 0%, var(--accent) 55%, var(--brand-navy) 100%);
+}
+
+/* Headings carry the brand navy; body text stays the softer ink. */
+h1,
+h2 {
+  color: var(--text);
+}
+
+.page-heading h1 {
+  font-size: clamp(1.6rem, 3.2vw, 2.05rem);
+  letter-spacing: -0.025em;
+}
+
+.card {
+  box-shadow: var(--shadow);
+}
+
+/**
+ * A grid item defaults to min-width:auto, which means it refuses to shrink
+ * below its content. A wide table inside a .stack therefore widens the whole
+ * page instead of scrolling inside its own .table-wrap -- which is exactly
+ * what the gradebook did on a phone. Letting stack children shrink puts the
+ * overflow back where it belongs.
+ */
+.stack > * {
+  min-width: 0;
+}
+
+.card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* A list inside a flush card reads as rows of one thing; the gaps between
+   them should be the sunken level, not another sheet of white. */
+.card--flush {
+  box-shadow: var(--shadow);
+}
+
+.badge {
+  border: 1px solid transparent;
+  letter-spacing: 0.01em;
+}
+
+.badge--accent {
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.badge--live {
+  border-color: color-mix(in srgb, var(--success) 22%, transparent);
+}
+
+.badge--draft {
+  border-color: color-mix(in srgb, var(--warning) 26%, transparent);
+}
+
+/* Focus is a ring rather than a hard outline, so it reads as part of the
+   design instead of an accident. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+.button:focus-visible,
+.tab:focus-visible,
+.link-button:focus-visible,
+.classroom-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-ring);
+}
+
+.button {
+  box-shadow: var(--shadow-sm);
+}
+
+.button--ghost {
+  background: var(--bg-elevated);
+  box-shadow: none;
+}
+
+/* ---- Empty states -------------------------------------------------------- */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+  padding: 2.75rem 1.5rem;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-state__glyph {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-bottom: 0.35rem;
+  border-radius: 50%;
+  background: var(--course-soft);
+  color: var(--course-ink);
+}
+
+.empty-state__title {
+  margin: 0;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.empty-state__detail {
+  margin: 0;
+  font-size: 0.88rem;
+  max-width: 44ch;
+}
+
 /* ---- Header -------------------------------------------------------------- */
 
 .site-header__crumb {
@@ -35,11 +171,16 @@
   max-width: 18ch;
 }
 
-/* On a phone the university and the name together crowd out the sign-out
-   button, and the name is the less useful of the two. */
+/**
+ * On a phone the header cannot carry the name, the university, the role and a
+ * sign-out button: together they run past the viewport and scroll the whole
+ * page sideways. Everything that only tells you what you already know goes,
+ * leaving the brand and the way out.
+ */
 @media (max-width: 640px) {
   .account-name,
-  .site-header__crumb {
+  .site-header__crumb,
+  .site-header__account .badge {
     display: none;
   }
 }
@@ -52,24 +193,49 @@
   gap: 1rem;
 }
 
+/**
+ * A course tile: a band in the classroom's own colour, then the details.
+ *
+ * The band is what makes a wall of courses scannable -- you find the one you
+ * want by its colour long before you have read any of the titles.
+ */
 .classroom-card {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.15rem;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: border-color 120ms ease, transform 120ms ease;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease;
+}
+
+.classroom-card::before {
+  content: "";
+  display: block;
+  height: 4.25rem;
+  background:
+    linear-gradient(135deg, var(--course-band-from) 0%, var(--course-band-to) 100%);
 }
 
 .classroom-card:hover,
 .classroom-card:focus-visible {
-  border-color: var(--border-strong);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--course);
+}
+
+.classroom-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.95rem 1.05rem 1.05rem;
+  flex: 1;
 }
 
 .classroom-card__top {
@@ -83,6 +249,7 @@
   margin: 0;
   font-size: 1.05rem;
   line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
 .classroom-card__description {
@@ -102,13 +269,81 @@
   align-items: center;
   gap: 0.5rem;
   margin-top: auto;
-  padding-top: 0.4rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
   color: var(--text-faint);
   font-size: 0.82rem;
+  flex-wrap: wrap;
 }
 
-.classroom-card[data-archived="true"] {
-  opacity: 0.62;
+/* A student's card carries no term, code or archive mark, so the footer would
+   otherwise be a divider with nothing under it. */
+.classroom-card__foot:empty {
+  display: none;
+}
+
+/* Archived courses stay legible but visibly retired: the colour drains out
+   rather than the whole card fading, which would make the text hard to read. */
+.classroom-card[data-archived="true"]::before {
+  filter: grayscale(0.85);
+  opacity: 0.7;
+}
+
+.classroom-card[data-archived="true"] .classroom-card__name {
+  color: var(--text-muted);
+}
+
+/* ---- Classroom banner ---------------------------------------------------- *
+   The classroom page's sense of place: the course's colour, its name, and the
+   facts a teacher reads out loud. */
+
+.classroom-banner {
+  position: relative;
+  margin-bottom: 1.35rem;
+  padding: 1.35rem 1.5rem;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(1200px 300px at 100% -40%, rgba(255, 255, 255, 0.18), transparent 70%),
+    linear-gradient(135deg, var(--course-band-from) 0%, var(--course-band-to) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.classroom-banner__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.classroom-banner__name {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.4vw, 2.05rem);
+  line-height: 1.15;
+  letter-spacing: -0.028em;
+  color: #fff;
+}
+
+.classroom-banner__meta {
+  margin: 0.45rem 0 0;
+  font-size: 0.88rem;
+  /* Not pure white, so the name stays the loudest thing on the banner. */
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Badges on the banner sit on colour, so they need their own treatment
+   rather than the page's grey. */
+.classroom-banner .badge {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #fff;
+}
+
+.classroom-banner .join-code {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
 }
 
 /* ---- The join code, meant to be read aloud and typed --------------------- */
@@ -127,11 +362,20 @@
 
 /* ---- Classroom tabs ------------------------------------------------------ */
 
+/**
+ * The tab bar sits in its own tray rather than floating on the page, so the
+ * classroom reads as one object: banner, then its tabs, then their contents.
+ */
 .tabs {
   display: flex;
   gap: 0.15rem;
   overflow-x: auto;
-  border-bottom: 1px solid var(--border);
+  padding: 0.3rem 0.35rem 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 0;
+  box-shadow: var(--shadow-sm);
   /* Let the row scroll on a phone without a visible scrollbar stealing height. */
   scrollbar-width: none;
 }
@@ -147,12 +391,13 @@
   font: inherit;
   color: var(--text-muted);
   font-weight: 600;
-  padding: 0.7rem 0.95rem;
+  font-size: 0.92rem;
+  padding: 0.72rem 0.95rem;
   cursor: pointer;
   white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  border-bottom: 2.5px solid transparent;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: color 120ms ease, background 120ms ease;
 }
 
 .tab:hover {
@@ -161,17 +406,38 @@
 }
 
 .tab[aria-selected="true"] {
-  color: var(--accent-strong);
-  border-bottom-color: var(--accent);
+  color: var(--course-ink);
+  border-bottom-color: var(--course);
+  background: var(--course-soft);
 }
 
-.tab:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
+/* The panel continues the tray, so the selected tab connects to its contents
+   rather than hovering above a gap. */
 .tab-panel {
-  padding-top: 1.25rem;
+  padding: 1.35rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: var(--shadow);
+  min-height: 16rem;
+}
+
+/* Inside the tray a plain card would be white on white, so drop it back to a
+   bordered panel with no shadow of its own. */
+.tab-panel .card {
+  box-shadow: none;
+}
+
+.tab-panel .empty-state {
+  background: transparent;
+  border-style: dashed;
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .tab-panel {
+    padding: 1rem 0.85rem;
+  }
 }
 
 /* ---- Roster -------------------------------------------------------------- */
@@ -210,10 +476,11 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+  background: var(--course-soft);
+  color: var(--course-ink);
   font-weight: 700;
   font-size: 0.8rem;
+  letter-spacing: 0.02em;
 }
 
 /* ---- Quizzes ------------------------------------------------------------- */
@@ -225,21 +492,69 @@
   flex-wrap: wrap;
 }
 
-.quiz-row {
+/**
+ * The shared list row -- quizzes, calendar entries, gradebook items, threads.
+ * One row style across the product, so a list looks like a list wherever it is.
+ */
+.list-row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.85rem 1.05rem;
+  gap: 0.7rem;
+  padding: 0.9rem 1.1rem;
   border-bottom: 1px solid var(--border);
   flex-wrap: wrap;
+  transition: background 120ms ease;
 }
 
-.quiz-row:last-child {
+.list-row:last-child {
   border-bottom: 0;
 }
 
-.quiz-row__main {
+/* A row is a target in the lists that have one, so it should acknowledge the
+   pointer even where the whole row is not itself clickable. */
+.list-row:hover {
+  background: var(--bg-subtle);
+}
+
+.list-row__main {
   min-width: min(100%, 14rem);
+}
+
+/* ---- Stat tiles ---------------------------------------------------------- */
+
+.stat {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.stat__value {
+  font-size: 1.65rem;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.stat__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-faint);
+}
+
+.stat-grid {
+  gap: 0.75rem;
+}
+
+/* The quiz settings live in the narrow half of a split, so a split nested
+   inside them has nowhere to go: two date pickers side by side there clip
+   their own placeholders. */
+#settings-form .split {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.85rem;
 }
 
 /* ---- Taking a quiz ------------------------------------------------------- */
@@ -412,8 +727,12 @@
   color: var(--text-faint);
 }
 
+/* The calendar's own chrome -- today, and the day you have open -- follows the
+   course's colour. The event chips do not: their colours carry meaning (a
+   deadline is red wherever it appears) and must stay comparable across
+   courses. */
 .cal-day[data-selected="true"] {
-  box-shadow: inset 0 0 0 2px var(--accent);
+  box-shadow: inset 0 0 0 2px var(--course);
 }
 
 .cal-day__number {
@@ -436,8 +755,8 @@
 }
 
 .cal-day[data-today="true"] .cal-day__number {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--course);
+  color: #fff;
 }
 
 .cal-day__entries {
@@ -633,7 +952,7 @@
 /* A pinned notice earns a marker down the side rather than a louder colour;
    it is still an announcement, just the first one. */
 .announcement[data-pinned="true"] {
-  border-left: 3px solid var(--accent);
+  border-left: 3px solid var(--course);
 }
 
 .announcement[data-draft="true"] {
@@ -679,6 +998,9 @@
 .grade-table {
   border-collapse: collapse;
   width: 100%;
+  /* Never squeeze the columns into each other: past this the .table-wrap
+     scrolls sideways, which is what a gradebook wants on a narrow screen. */
+  min-width: max-content;
 }
 
 .grade-head {

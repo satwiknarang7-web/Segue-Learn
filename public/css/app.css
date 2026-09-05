@@ -1,35 +1,71 @@
-/* SegueQuiz design tokens ------------------------------------------------ */
+/* EduPlatform design tokens ---------------------------------------------- *
+ *
+ * Institutional, with depth. Three ideas hold it together:
+ *
+ * 1. Surfaces sit on a real elevation scale. The page is deeper than the
+ *    cards on it, so a card is raised by contrast rather than by a shadow
+ *    nobody can see. There is a sunken level too, for grid gaps and wells.
+ *
+ * 2. Navy is the voice; blue is the hand. The brand navy stays for text and
+ *    headings, and a brighter blue does the interactive work -- links,
+ *    buttons, focus. Before, both were the same near-black navy, so nothing
+ *    meant to look clickable looked clickable.
+ *
+ * 3. Every classroom carries a hue of its own on --course-h, used by anything
+ *    that should say which course you are in. It falls back to the brand blue,
+ *    so a page with no course still looks deliberate.
+ */
 
-/* Brand colours are sampled straight from the SegueIT logo. */
 :root {
+  /* Brand colours are sampled straight from the SegueIT logo. */
   --brand-navy: #042b56;
   --brand-grey: #878787;
 
-  --bg: #f4f6f9;
+  /* Surfaces, deepest to highest. */
+  --bg-sunken: #dfe5ef;
+  --bg: #eef1f7;
+  --bg-subtle: #e7ecf4;
   --bg-elevated: #ffffff;
-  --bg-subtle: #eaeef4;
-  --border: #dde3ec;
-  --border-strong: #c3ccda;
-  --text: #101c2b;
-  --text-muted: #5b6779;
-  --text-faint: #87919f;
-  --accent: #042b56;
-  --accent-strong: #0a4483;
-  --accent-soft: #e4ecf6;
-  --success: #10704f;
-  --success-soft: #d8f0e6;
-  --danger: #b3302a;
-  --danger-soft: #fae2e0;
-  --warning: #8c5a10;
-  --warning-soft: #fcefd7;
+
+  --border: #d7deea;
+  --border-strong: #b8c3d4;
+
+  --text: #0d1b2e;
+  --text-muted: #55627a;
+  --text-faint: #828da1;
+
+  /* The interactive blue, beside the navy it belongs to. */
+  --accent: #1a56b8;
+  --accent-strong: #123f8c;
+  --accent-soft: #e4ecfb;
+  --accent-ring: rgba(26, 86, 184, 0.32);
+
+  --success: #0f6b4c;
+  --success-soft: #d6efe4;
+  --danger: #b02d27;
+  --danger-soft: #fae0de;
+  --warning: #8a570f;
+  --warning-soft: #fcecd2;
   --gold: #a9741d;
   --bronze: #b9713f;
   --on-accent: #ffffff;
   --on-medal: #ffffff;
-  --radius: 14px;
-  --radius-sm: 9px;
-  --shadow: 0 1px 2px rgba(16, 19, 43, 0.06), 0 8px 24px rgba(16, 19, 43, 0.06);
-  --shadow-lg: 0 24px 60px rgba(16, 19, 43, 0.18);
+
+  /* Per-classroom identity. Only the inputs live here -- the colours derived
+     from them are computed per element, see the rule below. */
+  --course-h: 217;
+  --course-s: 76%;
+
+  --radius-lg: 18px;
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  /* Layered rather than one soft blur, so raised things read as raised. */
+  --shadow-sm: 0 1px 2px rgba(13, 27, 46, 0.07);
+  --shadow: 0 1px 2px rgba(13, 27, 46, 0.06), 0 4px 12px rgba(13, 27, 46, 0.07);
+  --shadow-md: 0 2px 4px rgba(13, 27, 46, 0.07), 0 10px 26px rgba(13, 27, 46, 0.1);
+  --shadow-lg: 0 24px 60px rgba(13, 27, 46, 0.2);
+
   --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
@@ -39,29 +75,40 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a1220;
-    --bg-elevated: #131d2e;
-    --bg-subtle: #1c283b;
-    --border: #26344a;
-    --border-strong: #364763;
-    --text: #eaf0f8;
-    --text-muted: #a2b0c4;
-    --text-faint: #7d8b9f;
-    --accent: #8fb4e8;
-    --accent-strong: #adc9f0;
-    --accent-soft: #17263d;
+    /* The same elevation idea inverted: the page is the darkest thing and
+       cards lift out of it. */
+    --bg-sunken: #060d18;
+    --bg: #0b1524;
+    --bg-subtle: #1a2537;
+    --bg-elevated: #141f31;
+
+    --border: #26334a;
+    --border-strong: #3a4c6a;
+
+    --text: #e9eff8;
+    --text-muted: #a3b1c6;
+    --text-faint: #7c8aa0;
+
+    --accent: #6fa4f0;
+    --accent-strong: #9ac0f7;
+    --accent-soft: #16273f;
+    --accent-ring: rgba(111, 164, 240, 0.4);
+
     --success: #4ed3a3;
-    --success-soft: #14342a;
+    --success-soft: #123227;
     --danger: #ff8b82;
     --danger-soft: #3a1f1e;
     --warning: #f0b357;
-    --warning-soft: #37280f;
+    --warning-soft: #372810;
     --gold: #f0c05a;
     --bronze: #d9955f;
-    --on-accent: #08131f;
+    --on-accent: #06111e;
     --on-medal: #1a1206;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5), 0 10px 26px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.6);
 
     color-scheme: dark;
   }
@@ -69,6 +116,43 @@
 
 * {
   box-sizing: border-box;
+}
+
+/**
+ * The course colours are derived on every element, not on :root.
+ *
+ * A custom property is substituted where it is declared, so `--course` defined
+ * on :root resolves once against the root's hue and inherits down as a fixed
+ * colour. Setting --course-h on a card would then change nothing. Deriving
+ * here means each element recomputes from whichever hue it has inherited,
+ * which is what lets one page show several courses in their own colours.
+ */
+* {
+  --course: hsl(var(--course-h) var(--course-s) 41%);
+  --course-deep: hsl(var(--course-h) var(--course-s) 26%);
+  --course-soft: hsl(var(--course-h) calc(var(--course-s) - 8%) 94%);
+  --course-ink: hsl(var(--course-h) var(--course-s) 30%);
+
+  /* The banner and the card band carry white text, so they must stay dark
+     enough for it in BOTH themes. They are therefore their own pair rather
+     than reusing --course, which lightens in the dark theme. */
+  --course-band-from: hsl(var(--course-h) var(--course-s) 41%);
+  --course-band-to: hsl(var(--course-h) var(--course-s) 24%);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Lifted and desaturated, so a course colour tints rather than glares. */
+  * {
+    --course: hsl(var(--course-h) calc(var(--course-s) - 24%) 66%);
+    --course-deep: hsl(var(--course-h) calc(var(--course-s) - 18%) 74%);
+    --course-soft: hsl(var(--course-h) calc(var(--course-s) - 40%) 18%);
+    --course-ink: hsl(var(--course-h) calc(var(--course-s) - 20%) 78%);
+
+    /* Deeper still in the dark, so the banner sits into the page rather than
+       glaring out of it -- and white stays readable on it. */
+    --course-band-from: hsl(var(--course-h) calc(var(--course-s) - 22%) 30%);
+    --course-band-to: hsl(var(--course-h) calc(var(--course-s) - 22%) 17%);
+  }
 }
 
 /* Layout classes below set `display`, which would otherwise beat the

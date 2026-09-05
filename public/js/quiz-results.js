@@ -1,6 +1,8 @@
 import {
   api,
+  applyCourseTheme,
   el,
+  emptyState,
   formatDateTime,
   formatDuration,
   renderHeader,
@@ -159,7 +161,11 @@ async function refresh() {
     nodes.summary.hidden = true;
     nodes.resultsCard.hidden = true;
     nodes.empty.replaceChildren(
-      el('div', { class: 'empty-state', text: 'Nobody has taken this quiz yet.' }),
+      emptyState(
+        'quiz',
+        'No attempts yet',
+        'Once students have taken this quiz, their scores and papers appear here.',
+      ),
     );
     return;
   }
@@ -198,6 +204,9 @@ document.querySelector('#clear').addEventListener('click', async () => {
 async function boot() {
   const user = await requireSession();
   if (!user) return;
+
+  // The quiz pages belong to a classroom, so they wear its colour too.
+  applyCourseTheme(document.documentElement, classroomId);
 
   renderHeader({ user });
   document.querySelector('#back').href = `/classrooms/${classroomId}#quiz`;

@@ -1,4 +1,4 @@
-import { api, el, formatDateTime, renderParagraphs, showError, toast } from '../api.js';
+import { api, el, emptyState, formatDateTime, renderParagraphs, showError, toast } from '../api.js';
 
 /**
  * The Announcements tab.
@@ -235,12 +235,17 @@ export async function renderAnnouncementsTab({ classroomId }) {
 
       if (announcements.length === 0) {
         list.replaceChildren(
-          el('div', {
-            class: 'empty-state',
-            text: canPost
-              ? 'Nothing posted yet. Write the first announcement.'
-              : 'No announcements yet.',
-          }),
+          canPost
+            ? emptyState(
+                'announcement',
+                'Nothing posted yet',
+                'Write the first announcement. Students see it as soon as you publish.',
+              )
+            : emptyState(
+                'announcement',
+                'No announcements yet',
+                'Notices from your teaching staff will appear here.',
+              ),
         );
         return;
       }
