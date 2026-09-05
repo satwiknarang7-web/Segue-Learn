@@ -139,49 +139,235 @@ select:focus-visible,
   max-width: 44ch;
 }
 
-/* ---- Header -------------------------------------------------------------- */
+/* ---- Top navigation ------------------------------------------------------ */
 
-.site-header__crumb {
-  color: var(--text-muted);
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
   font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
   white-space: nowrap;
+  max-width: 22ch;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 40ch;
 }
 
-.site-header__crumb::before {
-  content: "/";
-  color: var(--text-faint);
-  margin: 0 0.6rem 0 0.2rem;
+.nav__link:hover {
+  background: var(--bg-subtle);
+  color: var(--text);
 }
 
-.site-header__account {
+.nav__link[aria-current="page"] {
+  color: var(--text);
+  background: var(--bg-subtle);
+}
+
+/* The switcher says where you are, so it earns the course's colour. */
+.nav__link--menu {
+  color: var(--text);
+}
+
+.nav__link--menu::after {
+  content: "";
+  width: 0;
+  height: 0;
+  margin-left: 0.15rem;
+  border: 0.28rem solid transparent;
+  border-top-color: currentColor;
+  transform: translateY(0.14rem);
+}
+
+/* ---- Menus --------------------------------------------------------------- */
+
+.menu {
+  position: relative;
+}
+
+/**
+ * Panels hang from the right edge of their button and grow leftwards.
+ *
+ * Left-aligning them put the course switcher's panel past the right of the
+ * viewport on a narrow screen, which scrolled the whole page sideways. Every
+ * menu here sits in the right half of a bar, so growing left is the direction
+ * that always has room.
+ */
+.menu__panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 30;
+  min-width: 15rem;
+  max-width: min(22rem, calc(100vw - 1.5rem));
+  max-height: min(24rem, 70vh);
+  overflow-y: auto;
+  padding: 0.3rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.menu__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.3rem;
+}
+
+.menu__role {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  text-transform: capitalize;
+}
+
+.menu__item {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  font: inherit;
+  color: var(--text);
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu__item:hover {
+  background: var(--bg-subtle);
+}
+
+.menu__item[aria-current="page"] {
+  background: var(--course-soft);
+}
+
+.menu__dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  flex: 0 0 auto;
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--course-band-from), var(--course-band-to));
+}
+
+.menu__item-text {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+}
+
+.menu__item-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu__item-meta {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+}
+
+.menu__note {
+  margin: 0;
+  padding: 0.7rem;
+  font-size: 0.87rem;
+  color: var(--text-muted);
+}
+
+/* ---- The account button -------------------------------------------------- */
+
+.account-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.55rem 0.3rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.account-button:hover {
+  background: var(--bg-subtle);
+  border-color: var(--border-strong);
+}
+
+/* The account avatar is a person, not a course, so it keeps the brand blue. */
+.avatar--plain {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.72rem;
 }
 
 .account-name {
   font-weight: 600;
+  font-size: 0.9rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 18ch;
+  max-width: 14ch;
 }
 
 /**
- * On a phone the header cannot carry the name, the university, the role and a
- * sign-out button: together they run past the viewport and scroll the whole
- * page sideways. Everything that only tells you what you already know goes,
- * leaving the brand and the way out.
+ * On a phone the bar cannot carry a name and a course title as well as the
+ * brand. The name collapses to its avatar and the switcher keeps its label,
+ * because knowing which course you are in matters more than seeing your own
+ * name on your own screen.
  */
-@media (max-width: 640px) {
-  .account-name,
-  .site-header__crumb,
-  .site-header__account .badge {
+@media (max-width: 860px) {
+  .account-name {
     display: none;
+  }
+
+  .account-button {
+    padding: 0.3rem;
+  }
+
+  .nav__link {
+    max-width: 16ch;
+    padding: 0.45rem 0.5rem;
+  }
+}
+
+/**
+ * Below this, two nav labels only fit by truncating both into nonsense
+ * ("My classroor", "Switch cours"). The link goes rather than the switcher:
+ * the brand already leads home, and nothing else tells you which course you
+ * are looking at. The switcher then takes the room the link gave up.
+ */
+@media (max-width: 620px) {
+  .nav__link:not(.nav__link--menu) {
+    display: none;
+  }
+
+  .nav__link--menu {
+    max-width: 24ch;
   }
 }
 

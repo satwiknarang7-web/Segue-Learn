@@ -237,17 +237,15 @@ export const quizService = {
           updatedAt: quiz.updatedAt,
         };
 
-        if (staff) {
-          return { ...summary, attemptCount: quiz.attemptCount, joinCode: quiz.joinCode };
-        }
-
-        // A student's own record with this quiz, and nothing about anyone else's.
+        // Everybody's own standing with the quiz, staff included. Teaching
+        // staff are members too and may sit their own quiz to see what it
+        // looks like, and leaving these out told the taking page nothing --
+        // which it then read as "already taken".
         const attempts = await attemptRepository.listForStudent(quiz.id, user.id);
         const submitted = attempts.filter((attempt) => attempt.status === 'submitted');
         const inProgress = attempts.find((attempt) => attempt.status === 'in_progress') ?? null;
 
-        return {
-          ...summary,
+        const own = {
           attemptsTaken: submitted.length,
           inProgressAttemptId: inProgress?.id ?? null,
           bestScore: submitted.length
@@ -258,6 +256,11 @@ export const quizService = {
             quiz.questions.length > 0 &&
             (Boolean(inProgress) || quiz.allowRetakes || submitted.length === 0),
         };
+
+        // Only staff learn anything about anyone else.
+        return staff
+          ? { ...summary, ...own, attemptCount: quiz.attemptCount, joinCode: quiz.joinCode }
+          : { ...summary, ...own };
       }),
     );
   },

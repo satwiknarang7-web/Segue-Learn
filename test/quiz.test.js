@@ -194,6 +194,23 @@ describe('what a student may see', () => {
     assert.equal(asStudent.body.length, 0);
   });
 
+  it('tells staff their own standing, not just everyone else\'s', async () => {
+    const { teacher, classroomId } = await seedClassroom();
+    await seedQuiz(teacher, classroomId);
+
+    const [quiz] = (await teacher.get(`/api/classrooms/${classroomId}/quizzes`)).body;
+
+    // Staff are members too and may sit their own quiz. Without these the
+    // taking page knew nothing and read the silence as "already taken".
+    assert.equal(quiz.attemptsTaken, 0);
+    assert.equal(quiz.canStart, true);
+    assert.equal(quiz.inProgressAttemptId, null);
+
+    // And they still get what only staff may see.
+    assert.equal(quiz.attemptCount, 0);
+    assert.ok(quiz.joinCode !== undefined);
+  });
+
   it('never hands a student the answer key', async () => {
     const { teacher, student, classroomId } = await seedClassroom();
     const quizId = await seedQuiz(teacher, classroomId);

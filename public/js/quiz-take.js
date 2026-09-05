@@ -322,12 +322,22 @@ async function boot() {
   const warning = document.querySelector('#intro-warning');
   if (!summary.canStart) {
     warning.hidden = false;
-    warning.textContent =
-      summary.state === 'scheduled'
-        ? 'This quiz has not opened yet.'
-        : summary.state === 'closed'
-          ? 'This quiz has closed.'
-          : 'You have already taken this quiz.';
+    // Each reason is checked rather than assumed. "Already taken" used to be
+    // the catch-all, which told a teacher who had never opened the quiz that
+    // they had already sat it.
+    if (summary.state === 'draft') {
+      warning.textContent = 'This quiz has not been published yet.';
+    } else if (summary.state === 'scheduled') {
+      warning.textContent = 'This quiz has not opened yet.';
+    } else if (summary.state === 'closed') {
+      warning.textContent = 'This quiz has closed.';
+    } else if (summary.questionCount === 0) {
+      warning.textContent = 'This quiz has no questions yet.';
+    } else if (summary.attemptsTaken > 0) {
+      warning.textContent = 'You have already taken this quiz.';
+    } else {
+      warning.textContent = 'This quiz cannot be started at the moment.';
+    }
     document.querySelector('#start').disabled = true;
   } else if (summary.inProgressAttemptId) {
     warning.hidden = false;

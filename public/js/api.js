@@ -357,30 +357,181 @@ export function renderHeader({ user, current = null }) {
         el('span', { class: 'brand__divider', 'aria-hidden': 'true' }),
         el('span', { class: 'brand__product', text: 'Learn' }),
       ]),
-      current ? el('span', { class: 'site-header__crumb', text: current }) : null,
+
+      user ? navLinks(current) : null,
       el('span', { class: 'spacer' }),
-      user
-        ? el('div', { class: 'site-header__account' }, [
-            user.university
-              ? el('span', { class: 'badge', text: user.university.name })
-              : null,
-            user.role && user.role !== 'student'
-              ? el('span', { class: 'badge badge--accent', text: user.role })
-              : null,
-            el('span', { class: 'account-name', text: user.name }),
-            el('button', {
-              class: 'button button--ghost button--small',
-              type: 'button',
-              text: 'Sign out',
-              onClick: async () => {
-                await api.signOut();
-                window.location.href = '/';
-              },
-            }),
-          ])
-        : null,
+      user ? accountMenu(user) : null,
     ]),
   );
+}
+
+/* ---- The top navigation --------------------------------------------------
+ *
+ * One bar on every signed-in page. It carries the two things that are true
+ * wherever you are: a way back to your classrooms, and a way to jump straight
+ * into another one without going home first.
+ */
+
+/** Tracks the open menu, so opening one closes the other. */
+let openMenu = null;
+
+function closeOpenMenu() {
+  if (!openMenu) return;
+  openMenu.panel.hidden = true;
+  openMenu.button.setAttribute('aria-expanded', 'false');
+  openMenu = null;
+}
+
+document.addEventListener('click', (event) => {
+  if (openMenu && !openMenu.root.contains(event.target)) closeOpenMenu();
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || !openMenu) return;
+  const { button } = openMenu;
+  closeOpenMenu();
+  // Focus goes back to what opened it, so keyboard users are not stranded.
+  button.focus();
+});
+
+/**
+ * A button and the panel it opens. `fill` is called the first time it is
+ * opened, so a menu nobody touches costs no request.
+ */
+function menu(button, { fill } = {}) {
+  const panel = el('div', { class: 'menu__panel', hidden: true });
+  const root = el('div', { class: 'menu' }, [button, panel]);
+
+  button.setAttribute('aria-haspopup', 'true');
+  button.setAttribute('aria-expanded', 'false');
+
+  let filled = false;
+
+  button.addEventListener('click', async (event) => {
+    event.stopPropagation();
+    const isOpen = openMenu?.root === root;
+    closeOpenMenu();
+    if (isOpen) return;
+
+    panel.hidden = false;
+    button.setAttribute('aria-expanded', 'true');
+    openMenu = { root, panel, button };
+
+    if (!filled && fill) {
+      filled = true;
+      panel.replaceChildren(el('p', { class: 'menu__note', text: 'Loading…' }));
+      try {
+        panel.replaceChildren(...(await fill()));
+      } catch {
+        filled = false;
+        panel.replaceChildren(el('p', { class: 'menu__note', text: 'Could not load that.' }));
+      }
+    }
+  });
+
+  return root;
+}
+
+const ROLE_WORD = { teacher: 'Teacher', ta: 'TA', student: 'Student' };
+
+function navLinks(current) {
+  const onHome = window.location.pathname === '/home';
+
+  const switcher = menu(
+    el('button', {
+      class: 'nav__link nav__link--menu',
+      type: 'button',
+      // The current classroom is the most useful label the button can carry:
+      // it says where you are as well as offering somewhere else to go.
+      text: current ?? 'Switch course',
+    }),
+    {
+      async fill() {
+        const classrooms = await api.listClassrooms();
+        if (classrooms.length === 0) {
+          return [el('p', { class: 'menu__note', text: 'You are not in any classrooms yet.' })];
+        }
+
+        return classrooms.map((classroom) =>
+          applyCourseTheme(
+            el(
+              'a',
+              {
+                class: 'menu__item',
+                href: `/classrooms/${classroom.id}`,
+                'aria-current': classroom.name === current ? 'page' : null,
+              },
+              [
+                el('span', { class: 'menu__dot', 'aria-hidden': 'true' }),
+                el('span', { class: 'menu__item-text' }, [
+                  el('span', { class: 'menu__item-name', text: classroom.name }),
+                  classroom.role
+                    ? el('span', {
+                        class: 'menu__item-meta',
+                        text: ROLE_WORD[classroom.role] ?? classroom.role,
+                      })
+                    : null,
+                ]),
+              ],
+            ),
+            classroom.id,
+          ),
+        );
+      },
+    },
+  );
+
+  return el('nav', { class: 'nav', 'aria-label': 'Main' }, [
+    el('a', {
+      class: 'nav__link',
+      href: '/home',
+      text: 'My classrooms',
+      'aria-current': onHome ? 'page' : null,
+    }),
+    switcher,
+  ]);
+}
+
+const initialsOf = (name) =>
+  String(name ?? '?')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('');
+
+function accountMenu(user) {
+  const button = el('button', { class: 'account-button', type: 'button' }, [
+    el('span', { class: 'avatar avatar--plain', text: initialsOf(user.name), 'aria-hidden': 'true' }),
+    el('span', { class: 'account-name', text: user.name }),
+  ]);
+  button.setAttribute('aria-label', `Account: ${user.name}`);
+
+  return menu(button, {
+    fill: () => [
+      el('div', { class: 'menu__header' }, [
+        el('span', { class: 'menu__item-name', text: user.name }),
+        user.university
+          ? el('span', { class: 'menu__item-meta', text: user.university.name })
+          : null,
+        user.role
+          ? el('span', {
+              class: 'badge badge--accent menu__role',
+              text: user.role === 'faculty' ? 'Teaching staff' : user.role,
+            })
+          : null,
+      ]),
+      el('button', {
+        class: 'menu__item menu__item--button',
+        type: 'button',
+        text: 'Sign out',
+        onClick: async () => {
+          await api.signOut();
+          window.location.href = '/';
+        },
+      }),
+    ],
+  });
 }
 
 /** Sends anyone without an active session to sign in, and returns the user. */
