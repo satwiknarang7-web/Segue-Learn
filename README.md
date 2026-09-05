@@ -92,6 +92,39 @@ displays as markup rather than becoming it — structurally, not by escaping.
 > **Not built yet:** read tracking (who has seen what) needs a per-student
 > table the schema does not have, so there are no unread badges.
 
+## Dashboard
+
+`/home` is one dashboard that shows a **Teaching** half to anyone who teaches
+and a **Studying** half to anyone who studies. Somebody who does both — a
+graduate student running one seminar and sitting another — sees both. That is
+the whole reason role lives on the enrolment rather than on the account, so the
+dashboard reads memberships rather than `platform_role`.
+
+Teaching cards count what is waiting: marks to enter, questions nobody has
+answered, draft quizzes, draft notices. Each count is a link to the tab where
+you deal with it — a dashboard that names a problem without taking you to it is
+a to-do list you have to retype. Quiz-backed gradebook columns are never
+counted, because they mark themselves.
+
+Studying cards carry quiz standing and a link to that course's gradebook, and
+"To do" lists published quizzes not yet submitted.
+
+> Quiz marks only, not the gradebook total: the real grade would mean
+> assembling every course's gradebook to draw one screen.
+
+## Navigation
+
+One bar on every signed-in page: **Dashboard**, **Courses**, **Calendar**, a
+course switcher, and the account menu.
+
+The switcher is labelled with the course you are in, lists every course in its
+own colour, and — while you are inside one — also jumps straight to any of its
+tabs, so the bar reaches every screen rather than only a course's front page.
+
+On a narrow screen Dashboard and Courses drop out: the brand already leads to
+the dashboard and the switcher already lists the courses, while Calendar and
+the switcher have no other route.
+
 ## Calendar
 
 Two of them, sharing one month grid (`public/js/lib/calendarGrid.js`) so they

@@ -25,7 +25,10 @@ pageRoutes.get('/', async ({ req, res }) => {
   await sendHtmlPage(res, config.publicDir, 'landing.html');
 });
 
-pageRoutes.get('/home', page('home.html'), signedIn);
+pageRoutes.get('/home', page('dashboard.html'), signedIn);
+
+/** The full list of courses, which the dashboard summarises. */
+pageRoutes.get('/classrooms', page('home.html'), signedIn);
 
 /** Everything due across every classroom, rather than one course at a time. */
 pageRoutes.get('/calendar', page('calendar.html'), signedIn);

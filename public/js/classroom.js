@@ -316,7 +316,7 @@ async function boot() {
   // every empty state on the page are all in this course's colour.
   applyCourseTheme(document.documentElement, classroomId);
 
-  renderHeader({ user, current: classroom.name });
+  renderHeader({ user, current: classroom.name, classroomId });
 
   nodes.name.textContent = classroom.name;
   nodes.meta.textContent = [

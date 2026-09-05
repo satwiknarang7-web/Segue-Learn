@@ -7,6 +7,7 @@ import { attemptRoutes } from './routes/attemptRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { calendarRoutes } from './routes/calendarRoutes.js';
 import { classroomRoutes } from './routes/classroomRoutes.js';
+import { dashboardRoutes } from './routes/dashboardRoutes.js';
 import { discussionRoutes } from './routes/discussionRoutes.js';
 import { gradebookRoutes } from './routes/gradebookRoutes.js';
 import { pageRoutes } from './routes/pageRoutes.js';
@@ -22,6 +23,7 @@ const router = new Router()
   .use(announcementRoutes)
   .use(discussionRoutes)
   .use(calendarRoutes)
+  .use(dashboardRoutes)
   .use(pageRoutes);
 
 const METHODS_WITH_BODY = new Set(['POST', 'PATCH', 'PUT']);

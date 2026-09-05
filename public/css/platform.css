@@ -314,6 +314,116 @@ select:focus-visible,
   color: var(--text-muted);
 }
 
+/* ---- The switcher's jump list -------------------------------------------- */
+
+.menu__group {
+  margin: 0.5rem 0 0.2rem;
+  padding: 0 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.menu__group:first-child {
+  margin-top: 0.2rem;
+}
+
+/* Tabs wrap as chips rather than stacking: nine of them as full rows would
+   push the course list off the bottom of the panel. */
+.menu__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0 0.5rem 0.2rem;
+}
+
+.menu__tab {
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.menu__tab:hover {
+  background: var(--course-soft);
+  color: var(--course-ink);
+}
+
+/* ---- Dashboard ----------------------------------------------------------- */
+
+.dash-sections {
+  gap: 2rem;
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 0.85rem;
+}
+
+.dash-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.95rem 1.05rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  /* The course's colour down the edge, so a card is identifiable at a glance
+     without spending the whole tile on a band. */
+  border-left: 3px solid var(--course);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.dash-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.dash-card__name {
+  font-weight: 650;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.dash-card__head:hover .dash-card__name {
+  color: var(--course-ink);
+}
+
+.dash-card__clear {
+  color: var(--success);
+}
+
+/**
+ * A count that is also the way to deal with it. A dashboard that names a
+ * problem without taking you to it is a to-do list you have to retype.
+ */
+.todo-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  background: var(--course-soft);
+  color: var(--course-ink);
+  border: 1px solid transparent;
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.todo-chip:hover {
+  border-color: var(--course);
+}
+
 /* ---- The account button -------------------------------------------------- */
 
 .account-button {
@@ -374,14 +484,13 @@ select:focus-visible,
 }
 
 /**
- * Below this the labels only fit by truncating into nonsense ("My classroor",
- * "Switch cours"). "My classrooms" is the one to drop, because the brand
- * already leads home -- but Calendar stays, or it would be unreachable on a
- * phone, and the switcher stays because nothing else says which course you
- * are looking at.
+ * Below this the labels only fit by truncating into nonsense. Dashboard and
+ * Courses go, because the brand leads to the dashboard and the switcher lists
+ * the courses. Calendar stays, or it would be unreachable on a phone, and the
+ * switcher stays because nothing else says which course you are looking at.
  */
 @media (max-width: 620px) {
-  .nav__link--home {
+  .nav__link--optional {
     display: none;
   }
 

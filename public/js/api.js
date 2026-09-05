@@ -21,6 +21,9 @@ export const api = {
   me: () => request('GET', '/api/auth/me'),
   signOut: () => request('POST', '/api/auth/signout', {}),
 
+  /** Teaching and studying together, shaped by what this person actually does. */
+  dashboard: () => request('GET', '/api/dashboard'),
+
   listClassrooms: () => request('GET', '/api/classrooms'),
   listPublicClassrooms: () => request('GET', '/api/classrooms/public'),
   createClassroom: (payload) => request('POST', '/api/classrooms', payload),
@@ -343,7 +346,7 @@ export function hideNotice(node) {
 }
 
 /** The shared header, so every signed-in page carries the same one. */
-export function renderHeader({ user, current = null }) {
+export function renderHeader({ user, current = null, classroomId = null }) {
   const header = document.querySelector('#site-header');
   if (!header) return;
 
@@ -365,7 +368,7 @@ export function renderHeader({ user, current = null }) {
         el('span', { class: 'brand__product', text: 'Learn' }),
       ]),
 
-      user ? navLinks(current) : null,
+      user ? navLinks(current, classroomId) : null,
       el('span', { class: 'spacer' }),
       user ? accountMenu(user) : null,
     ]),
@@ -441,7 +444,19 @@ function menu(button, { fill } = {}) {
 
 const ROLE_WORD = { teacher: 'Teacher', ta: 'TA', student: 'Student' };
 
-function navLinks(current) {
+/** Every tab a classroom page offers, for the switcher's jump list. */
+const COURSE_TABS = [
+  ['content', 'Content'],
+  ['calendar', 'Calendar'],
+  ['announcements', 'Announcements'],
+  ['discussions', 'Discussions'],
+  ['quiz', 'Quiz'],
+  ['gradebook', 'Gradebook'],
+  ['messages', 'Messages'],
+  ['people', 'People'],
+];
+
+function navLinks(current, classroomId) {
   const path = window.location.pathname;
 
   const switcherButton = el('button', {
@@ -467,7 +482,32 @@ function navLinks(current) {
           return [el('p', { class: 'menu__note', text: 'You are not in any classrooms yet.' })];
         }
 
-        return classrooms.map((classroom) =>
+        // Inside a course, the switcher also reaches any of its tabs, so the
+        // bar can get to every screen rather than only to a course's front
+        // page. Settings is left out: it exists only for teaching staff, and
+        // the nav does not know the caller's role in this classroom.
+        const here = classroomId
+          ? [
+              el('p', { class: 'menu__group', text: 'In this course' }),
+              el(
+                'div',
+                { class: 'menu__tabs' },
+                COURSE_TABS.map(([id, label]) =>
+                  el('a', {
+                    class: 'menu__tab',
+                    href: `/classrooms/${classroomId}#${id}`,
+                    text: label,
+                    // The panel stays mounted across a hash change, so it has
+                    // to be told to close.
+                    onClick: closeOpenMenu,
+                  }),
+                ),
+              ),
+              el('p', { class: 'menu__group', text: 'Your courses' }),
+            ]
+          : [];
+
+        return here.concat(classrooms.map((classroom) =>
           applyCourseTheme(
             el(
               'a',
@@ -491,19 +531,26 @@ function navLinks(current) {
             ),
             classroom.id,
           ),
-        );
+        ));
       },
     },
   );
 
   return el('nav', { class: 'nav', 'aria-label': 'Main' }, [
+    // Both of these are reachable another way on a narrow screen -- the brand
+    // leads to the dashboard, and the switcher lists the courses -- so both
+    // give up their space before Calendar or the switcher do.
     el('a', {
-      // The one link the brand already duplicates, so it is the first to go
-      // when the bar runs out of room.
-      class: 'nav__link nav__link--home',
+      class: 'nav__link nav__link--optional',
       href: '/home',
-      text: 'My classrooms',
+      text: 'Dashboard',
       'aria-current': path === '/home' ? 'page' : null,
+    }),
+    el('a', {
+      class: 'nav__link nav__link--optional',
+      href: '/classrooms',
+      text: 'Courses',
+      'aria-current': path === '/classrooms' ? 'page' : null,
     }),
     el('a', {
       class: 'nav__link',
